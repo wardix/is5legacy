@@ -6,6 +6,7 @@ import { DataSource } from 'typeorm';
 import { HelloModule } from './hello/hello.module';
 import { AuthModule } from './auth/auth.module';
 import { IndexModule } from './index/index.module';
+import { CustomersModule } from './customers/customers.module';
 
 @Module({
   imports: [
@@ -21,7 +22,8 @@ import { IndexModule } from './index/index.module';
       synchronize: true}),
     HelloModule,
     AuthModule,
-    IndexModule
+    IndexModule,
+    CustomersModule
   ],
   controllers: [],
   providers: [],
