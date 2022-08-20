@@ -5,6 +5,7 @@ import { DataSource } from 'typeorm';
 
 import { HelloModule } from './hello/hello.module';
 import { AuthModule } from './auth/auth.module';
+import { IndexModule } from './index/index.module';
 
 @Module({
   imports: [
@@ -19,7 +20,8 @@ import { AuthModule } from './auth/auth.module';
       entities: [],
       synchronize: true}),
     HelloModule,
-    AuthModule
+    AuthModule,
+    IndexModule
   ],
   controllers: [],
   providers: [],
