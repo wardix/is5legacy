@@ -1,12 +1,13 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
 
 import { HelloModule } from './hello/hello.module';
 import { AuthModule } from './auth/auth.module';
 import { IndexModule } from './index/index.module';
 import { CustomersModule } from './customers/customers.module';
+import { EmployeesModule } from './employees/employees.module';
+import { Employee } from './employees/employee.entity';
 
 @Module({
   imports: [
@@ -18,14 +19,16 @@ import { CustomersModule } from './customers/customers.module';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DBNAME,
-      entities: [],
-      synchronize: true}),
+      entities: [Employee],
+      synchronize: true
+    }),
     HelloModule,
     AuthModule,
     IndexModule,
-    CustomersModule
+    CustomersModule,
+    EmployeesModule
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule {}
+export class AppModule { }
