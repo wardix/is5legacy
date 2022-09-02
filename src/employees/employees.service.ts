@@ -14,6 +14,9 @@ export class EmployeesService {
   }
 
   transformEmployee(employee: Employee) {
+    if (employee === null) {
+      return {};
+    }
     return {
       id: employee.EmpId,
       name: (employee.EmpFName + ' ' + employee.EmpLName).trim(),
