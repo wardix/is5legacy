@@ -20,15 +20,15 @@ import { Employee } from './employees/employee.entity';
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DBNAME,
       entities: [Employee],
-      synchronize: true
+      synchronize: true,
     }),
     HelloModule,
     AuthModule,
     IndexModule,
     CustomersModule,
-    EmployeesModule
+    EmployeesModule,
   ],
   controllers: [],
   providers: [],
 })
-export class AppModule { }
+export class AppModule {}

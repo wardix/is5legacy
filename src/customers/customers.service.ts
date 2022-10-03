@@ -6,7 +6,6 @@ import { DataSource } from 'typeorm';
 export class CustomersService {
   constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
 
-
   async getCustomerDetail(customerId: string) {
     const query = `
       SELECT CustName, CustResAdd1, CustResAdd2, CustEmail, CustIdNumber,
@@ -14,7 +13,7 @@ export class CustomersService {
              CustOfficePhone, CustBillCP, CustBillCPPhone, CustBillCPEmail,
              CustTechCP, CustTechCPPhone, CustTechCPEmail
       FROM Customer
-      WHERE CustId = ${customerId}`
+      WHERE CustId = ${customerId}`;
 
     const queryResult = await this.dataSource.query(query);
 
@@ -24,7 +23,6 @@ export class CustomersService {
 
     return this.transformCustomerQuery(queryResult[0]);
   }
-
 
   private transformCustomerQuery(obj) {
     return {
@@ -40,7 +38,7 @@ export class CustomersService {
       billingEmail: obj.CustBillCPEmail,
       technicalName: obj.CustTechCP,
       technicalContact: obj.CustTechCPPhone,
-      technicalEmail: obj.CustTechCPEmail
-    }
+      technicalEmail: obj.CustTechCPEmail,
+    };
   }
 }
