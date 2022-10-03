@@ -23,18 +23,32 @@ export class EmployeesService {
     AND EmpId != 'HDMEDAN'`;
 
     const queryResult = await this.dataSource.query(query);
+    const resultJson = [];
 
     if (queryResult.length === 0) {
       return {};
+    } else {
+      for (const i in queryResult) {
+        resultJson.push(this.transformEmployee(queryResult[i]));
+      }
     }
 
-    return this.transformEmployee(queryResult);
+    return resultJson;
   }
 
-  transformEmployee(employee: Employee) {
-    if (employee === null) {
-      return {};
-    }
-    return employee;
+  private transformEmployee(obj) {
+    return {
+      id: obj.EmpId,
+      name: (obj.EmpFName + ' ' + obj.EmpLName).trim(),
+      email: obj.EmpEmail,
+    };
   }
+
+  //   transformEmployee(employee: Employee) {
+  //     if (employee === null) {
+  //       return {};
+  //     }
+
+  //     return employee;
+  //   }
 }
