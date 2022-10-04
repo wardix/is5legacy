@@ -8,6 +8,7 @@ import { IndexModule } from './index/index.module';
 import { CustomersModule } from './customers/customers.module';
 import { EmployeesModule } from './employees/employees.module';
 import { Employee } from './employees/employee.entity';
+import { TtsModule } from './tts/tts.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { Employee } from './employees/employee.entity';
     IndexModule,
     CustomersModule,
     EmployeesModule,
+    TtsModule,
   ],
   controllers: [],
   providers: [],

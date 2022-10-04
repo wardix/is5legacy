@@ -43,12 +43,4 @@ export class EmployeesService {
       email: obj.EmpEmail,
     };
   }
-
-  //   transformEmployee(employee: Employee) {
-  //     if (employee === null) {
-  //       return {};
-  //     }
-
-  //     return employee;
-  //   }
 }
