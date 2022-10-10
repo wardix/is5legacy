@@ -9,10 +9,9 @@ export class TtsController {
 
   @Get('/')
   getTts(
-    @Query('id') id: string,
-    @Query('priodStart') priodStart: string,
-    @Query('priodEnd') priodEnd: string,
+    @Query('periodStart') periodStart: string,
+    @Query('periodEnd') periodEnd: string,
   ) {
-    return this.ttsService.getTts(id, priodStart, priodEnd);
+    return this.ttsService.getTts(periodStart, periodEnd);
   }
 }

@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
-import { Employee } from './employee.entity';
+import { Employee } from './employees.entity';
 
 @Injectable()
 export class EmployeesService {
@@ -16,24 +16,14 @@ export class EmployeesService {
     return this.transformEmployee(employee);
   }
 
-  async GetAllEmployee() {
-    const query = `SELECT EmpId, EmpFName, EmpLName, EmpEmail FROM Employee
-    WHERE DeptId IN ('01', '17')
-    AND BranchId = '020'
-    AND EmpId != 'HDMEDAN'`;
-
-    const queryResult = await this.dataSource.query(query);
-    const resultJson = [];
-
-    if (queryResult.length === 0) {
-      return {};
-    } else {
-      for (const i in queryResult) {
-        resultJson.push(this.transformEmployee(queryResult[i]));
-      }
+  async mapEmp() {
+    const employee = await Employee.GetAllEmployee();
+    const empMap = [];
+    empMap.push({ '0200306': 'wardi' });
+    for (const i of employee) {
+      empMap.push({ [i.EmpId]: `${i.EmpFName} ${i.EmpLName}` });
     }
-
-    return resultJson;
+    return empMap;
   }
 
   private transformEmployee(obj) {

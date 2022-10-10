@@ -7,8 +7,10 @@ import { AuthModule } from './auth/auth.module';
 import { IndexModule } from './index/index.module';
 import { CustomersModule } from './customers/customers.module';
 import { EmployeesModule } from './employees/employees.module';
-import { Employee } from './employees/employee.entity';
+import { Employee } from './employees/employees.entity';
+import { Tts } from './tts/tts.entity';
 import { TtsModule } from './tts/tts.module';
+import { Customer } from './customers/customers.entity';
 
 @Module({
   imports: [
@@ -20,7 +22,7 @@ import { TtsModule } from './tts/tts.module';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DBNAME,
-      entities: [Employee],
+      entities: [Employee, Tts, Customer],
       synchronize: true,
     }),
     HelloModule,

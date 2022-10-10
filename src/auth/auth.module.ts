@@ -6,7 +6,6 @@ import { ApiKeyStrategy } from './strategies/api-key.strategy';
 
 @Module({
   imports: [PassportModule, ConfigModule],
-  providers: [ApiKeyStrategy]
+  providers: [ApiKeyStrategy],
 })
-
 export class AuthModule {}

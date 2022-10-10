@@ -14,6 +14,6 @@ export class EmployeesController {
 
   @Get()
   GetEmployee(): Promise<any> {
-    return this.employeesService.GetAllEmployee();
+    return this.employeesService.mapEmp();
   }
 }

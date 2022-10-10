@@ -1,6 +1,5 @@
 import { Controller, Get, Param, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-
 import { CustomersService } from './customers.service';
 
 @UseGuards(AuthGuard('api-key'))

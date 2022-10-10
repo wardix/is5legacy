@@ -1,27 +1,22 @@
 import { Injectable } from '@nestjs/common';
-import { InjectDataSource } from '@nestjs/typeorm';
-import { DataSource } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { Customer } from './customers.entity';
 
 @Injectable()
 export class CustomersService {
-  constructor(@InjectDataSource() private readonly dataSource: DataSource) {}
+  constructor(
+    @InjectRepository(Customer)
+    private readonly customerRepository: Repository<Customer>,
+  ) {}
 
   async getCustomerDetail(customerId: string) {
-    const query = `
-      SELECT CustName, CustResAdd1, CustResAdd2, CustEmail, CustIdNumber,
-             CustHP, CustCompany, CustOfficeAdd1, CustOfficeAdd2,
-             CustOfficePhone, CustBillCP, CustBillCPPhone, CustBillCPEmail,
-             CustTechCP, CustTechCPPhone, CustTechCPEmail
-      FROM Customer
-      WHERE CustId = ${customerId}`;
+    return await Customer.GetAllCustomers(customerId);
+    // if (queryResult.length === 0) {
+    //   return {};
+    // }
 
-    const queryResult = await this.dataSource.query(query);
-
-    if (queryResult.length === 0) {
-      return {};
-    }
-
-    return this.transformCustomerQuery(queryResult[0]);
+    // return this.transformCustomerQuery(queryResult[0]);
   }
 
   private transformCustomerQuery(obj) {
