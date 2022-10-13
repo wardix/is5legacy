@@ -10,13 +10,12 @@ export class CustomersService {
     private readonly customerRepository: Repository<Customer>,
   ) {}
 
-  async getCustomerDetail(customerId: string) {
-    return await Customer.GetAllCustomers(customerId);
-    // if (queryResult.length === 0) {
-    //   return {};
-    // }
-
-    // return this.transformCustomerQuery(queryResult[0]);
+  async getCustomerDetail(customersId: string) {
+    // return await Customer.GetAllCustomers(customerId);
+    const queryResult = await this.customerRepository.findOneBy({
+      CustId: customersId,
+    });
+    return this.transformCustomerQuery(queryResult);
   }
 
   private transformCustomerQuery(obj) {

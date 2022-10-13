@@ -1,7 +1,7 @@
 import { BaseEntity, Entity, Column, PrimaryColumn } from 'typeorm';
 
 @Entity({ name: 'Employee', synchronize: false })
-export class Employee extends BaseEntity {
+export class Employees extends BaseEntity {
   @PrimaryColumn()
   EmpId: string;
 

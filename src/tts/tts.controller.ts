@@ -14,4 +14,20 @@ export class TtsController {
   ) {
     return this.ttsService.getTts(periodStart, periodEnd);
   }
+
+  @Get('/Assign')
+  getTtsAssign(
+    @Query('periodStart') periodStart: string,
+    @Query('periodEnd') periodEnd: string,
+  ) {
+    return this.ttsService.getTtsAssign(periodStart, periodEnd);
+  }
+
+  @Get('/Reopen')
+  getTtsReopen(
+    @Query('periodStart') periodStart: string,
+    @Query('periodEnd') periodEnd: string,
+  ) {
+    return this.ttsService.getTtsReopen(periodStart, periodEnd);
+  }
 }

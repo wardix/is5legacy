@@ -1,13 +1,13 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
-import { Employee } from './employees.entity';
+import { Employees } from './employees.entity';
 
 @Injectable()
 export class EmployeesService {
   constructor(
-    @InjectRepository(Employee)
-    private readonly employeeRepository: Repository<Employee>,
+    @InjectRepository(Employees)
+    private readonly employeeRepository: Repository<Employees>,
     private readonly dataSource: DataSource,
   ) {}
 
@@ -16,12 +16,12 @@ export class EmployeesService {
     return this.transformEmployee(employee);
   }
 
-  async mapEmp() {
-    const employee = await Employee.GetAllEmployee();
-    const empMap = [];
-    empMap.push({ '0200306': 'wardi' });
+  async empMap() {
+    const employee = await Employees.GetAllEmployee();
+    const empMap: any = {};
+    empMap['0200306'] = 'wardi';
     for (const i of employee) {
-      empMap.push({ [i.EmpId]: `${i.EmpFName} ${i.EmpLName}` });
+      empMap[i.EmpId] = `${i.EmpFName} ${i.EmpLName}`;
     }
     return empMap;
   }

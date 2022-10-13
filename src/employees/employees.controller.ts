@@ -13,7 +13,7 @@ export class EmployeesController {
   }
 
   @Get()
-  GetEmployee(): Promise<any> {
-    return this.employeesService.mapEmp();
+  async GetEmployee(): Promise<string[]> {
+    return await this.employeesService.empMap();
   }
 }
