@@ -12,7 +12,7 @@ export class TtsController {
     @Query('periodStart') periodStart: string,
     @Query('periodEnd') periodEnd: string,
   ) {
-    return this.ttsService.getTts(periodStart, periodEnd);
+    return this.ttsService.getTtsIncident(periodStart, periodEnd);
   }
 
   @Get('/Assign')
@@ -29,5 +29,13 @@ export class TtsController {
     @Query('periodEnd') periodEnd: string,
   ) {
     return this.ttsService.getTtsReopen(periodStart, periodEnd);
+  }
+
+  @Get('/Solve')
+  getTtsSolve(
+    @Query('periodStart') periodStart: string,
+    @Query('periodEnd') periodEnd: string,
+  ) {
+    return this.ttsService.getTtsSolve(periodStart, periodEnd);
   }
 }

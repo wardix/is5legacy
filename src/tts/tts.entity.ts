@@ -45,21 +45,16 @@ export class TtsPIC extends BaseEntity {
 
 @Entity({ name: 'TtsChange', synchronize: false })
 export class TtsChange extends BaseEntity {
-  @PrimaryColumn()
-  TtsUpdateId: string;
+  @PrimaryColumn({ name: 'TtsUpdate' })
+  TtsId: string;
 
-  @Column()
-  field: string;
-
-  @Column()
-  OldValue: string;
-
-  @Column()
-  NewValue: string;
+  @Column({ name: 'TtsUpdate' })
+  UpdatedTime: string;
 
   // ambil setiap ticket yang reopen pada waktu sesuai dengan periode yang ditentukan
   static getAllTtsReopen(periodStart, periodEnd) {
     return this.createQueryBuilder('TtsChange')
+      .select(['tu.TtsId', 'tu.UpdatedTime'])
       .leftJoin('TtsUpdate', 'tu', 'TtsChange.TtsUpdateId = tu.TtsUpdateId')
       .leftJoin('Tts', 't', 'tu.TtsId = t.TtsId')
       .where('t.TtsTypeId = 2')
@@ -68,6 +63,32 @@ export class TtsChange extends BaseEntity {
       .andWhere('TtsChange.NewValue = "Open"')
       .andWhere(`tu.UpdatedTime BETWEEN '${periodStart}' AND '${periodEnd}'`)
       .orderBy('tu.UpdatedTime')
-      .getMany();
+      .getRawMany();
+  }
+}
+
+@Entity({ name: 'TtsChange', synchronize: false })
+export class Ttschange extends BaseEntity {
+  @PrimaryColumn({ name: 'TtsUpdate' })
+  TtsId: string;
+
+  @Column({ name: 'TtsUpdate' })
+  UpdatedTime: string;
+
+  @Column({ name: 'TtsUpdate' })
+  EmpId: string;
+
+  // ambil setiap ticket yang solve pada waktu sesuai dengan periode yang ditentukan
+  static getAllTtsSolve(periodStart, periodEnd) {
+    return this.createQueryBuilder('TtsChange')
+      .select(['b.TtsId', 'b.EmpId', 'b.UpdatedTime'])
+      .leftJoin('TtsUpdate', 'b', 'TtsChange.TtsUpdateId = b.TtsUpdateId')
+      .leftJoin('Tts', 'c', 'b.TtsId = c.TtsId')
+      .where('c.TtsTypeId = 2')
+      .andWhere('TtsChange.field = "Status"')
+      .andWhere('TtsChange.OldValue != "Call"')
+      .andWhere('TtsChange.NewValue = "Call"')
+      .andWhere(`b.UpdatedTime BETWEEN '${periodStart}' AND '${periodEnd}'`)
+      .getRawMany();
   }
 }

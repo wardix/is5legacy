@@ -8,7 +8,7 @@ import { IndexModule } from './index/index.module';
 import { CustomersModule } from './customers/customers.module';
 import { EmployeesModule } from './employees/employees.module';
 import { Employees } from './employees/employees.entity';
-import { Tts, TtsPIC, TtsChange } from './tts/tts.entity';
+import { Tts, TtsPIC, TtsChange, Ttschange } from './tts/tts.entity';
 import { TtsModule } from './tts/tts.module';
 import { Customer } from './customers/customers.entity';
 
@@ -22,7 +22,7 @@ import { Customer } from './customers/customers.entity';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DBNAME,
-      entities: [Employees, Tts, Customer, TtsPIC, TtsChange],
+      entities: [Employees, Tts, Customer, TtsPIC, TtsChange, Ttschange],
       synchronize: true,
     }),
     HelloModule,

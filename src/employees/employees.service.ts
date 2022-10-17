@@ -18,7 +18,7 @@ export class EmployeesService {
 
   async empMap() {
     const employee = await Employees.GetAllEmployee();
-    const empMap: any = {};
+    let empMap: any = {};
     empMap['0200306'] = 'wardi';
     for (const i of employee) {
       empMap[i.EmpId] = `${i.EmpFName} ${i.EmpLName}`;
