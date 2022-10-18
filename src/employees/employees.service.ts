@@ -16,9 +16,13 @@ export class EmployeesService {
     return this.transformEmployee(employee);
   }
 
+  // employee mapping dari divisi helpdesk '01' -> 'Helpdesk Shift', '17' -> 'Helpdesk Reguler'
+  // '020' -> Cabang Medan
   async empMap() {
     const employee = await Employees.GetAllEmployee();
-    let empMap: any = {};
+    const empMap: any = {};
+
+    // jika ada employee yang pindah keluar dari divisi helpdesk harus diset manual
     empMap['0200306'] = 'wardi';
     for (const i of employee) {
       empMap[i.EmpId] = `${i.EmpFName} ${i.EmpLName}`;
