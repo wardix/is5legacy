@@ -8,6 +8,14 @@ export class TtsController {
   constructor(private readonly ttsService: TtsService) {}
 
   @Get('/')
+  getResultReport(
+    @Query('periodStart') periodStart: string,
+    @Query('periodEnd') periodEnd: string,
+  ) {
+    return this.ttsService.resultReport(periodStart, periodEnd);
+  }
+
+  @Get('/Incident')
   getTts(
     @Query('periodStart') periodStart: string,
     @Query('periodEnd') periodEnd: string,
