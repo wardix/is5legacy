@@ -82,6 +82,88 @@ export class TtsService {
     return tts;
   }
 
+  // ambil setiap ticket yang solve pada waktu sesuai dengan periode yang ditentukan
+  async getTtsSolve(periodStart: string, periodEnd: string) {
+    const tts = await Ttschange.getAllTtsSolve(periodStart, periodEnd);
+    // console.log(this.empMap['0200306']);
+    let expArray = [];
+
+    for (let i = 0; i < tts.length; i++) {
+      const ttsId = tts[i]['TtsId'];
+      const empId = tts[i]['EmpId'];
+      const updatedTime = tts[i]['UpdatedTime'];
+
+      expArray.push(ttsId);
+
+      // abaikan jika yang mensolvekan bukan helpdesk
+      if (!typeof (this.empMap[empId] !== 'undefined')) {
+        continue;
+      }
+
+      // abaikan jika tiket ternyata direopen kemudian
+      if (
+        typeof (this.reOpen[ttsId] && this.reOpen[ttsId] > updatedTime) !==
+        'undefined'
+      ) {
+        continue;
+      }
+
+      // perhitungkan sebagai solved untuk masing-masing employee
+      if (typeof this.solved['count'][empId] !== 'undefined') {
+        this.solved['count'][empId]++;
+        this.solved['detail'][empId];
+        this.solved['ttsId'] = ttsId;
+      } else {
+        this.solved['count'][empId] = 1;
+        this.solved['detail'][empId] = expArray;
+      }
+
+      // fungsi pengecekan array
+      function inArray(needle, haystack) {
+        const length = haystack.length;
+        for (let i = 0; i < length; i++) {
+          if (haystack[i] == needle) return true;
+        }
+        return false;
+      }
+
+      // perihtungan take over
+      // abaikan perhitungan take over jika ticket dicreate di periode sebelumnya
+      if (!inArray(ttsId, this.ttsPeriod)) {
+        continue;
+      }
+
+      // bukan take over jika sudah diassign ke employee yang bersangkutan
+      if (
+        typeof this.assigned['detail'][empId] &&
+        inArray(ttsId, this.assigned['detail'][empId] !== 'undefined')
+      ) {
+        continue;
+      }
+
+      // bukan take over jika yang create adalah employee yang bersangkutan
+      if (
+        typeof (
+          this.open['detail'][empId] &&
+          inArray(ttsId, this.open['detail'][empId])
+        ) !== 'undefined'
+      ) {
+        continue;
+      }
+
+      // perhitungkan take over
+      if (typeof this.takeOver['count'][empId] !== 'undefined') {
+        this.takeOver['count'][empId]++;
+        this.takeOver['detail'][empId];
+        this.takeOver['ttsId'] = ttsId;
+      } else {
+        this.takeOver['count'][empId] = 1;
+        this.takeOver['detail'][empId] = expArray;
+      }
+    }
+    return tts;
+  }
+
   // ambil semua ticket yang diassign pada waktu sesuai dengan periode yang ditentukan
   async getTtsAssign(periodStart: string, periodEnd: string) {
     const tts = await TtsPIC.getAllTtsAssign(periodStart, periodEnd);
@@ -189,10 +271,17 @@ export class TtsService {
       }
       if (typeof employee !== 'undefined')
         console.log(
+          'EmpId :',
+          empId,
+          'Nama :',
           employee,
+          '         - Open :',
           performance['open'],
+          'Assigned :',
           performance['assigned'],
+          'Takeover :',
           performance['takeover'],
+          'Solved :',
           performance['solved'],
           final,
         );
@@ -201,93 +290,11 @@ export class TtsService {
     return tts;
   }
 
-  // ambil setiap ticket yang solve pada waktu sesuai dengan periode yang ditentukan
-  async getTtsSolve(periodStart: string, periodEnd: string) {
-    const tts = await Ttschange.getAllTtsSolve(periodStart, periodEnd);
-    // console.log(this.empMap['0200306']);
-    let expArray = [];
-
-    for (const i of tts) {
-      const empId = i.EmpId;
-      const ttsId = i.TtsId;
-      const updatedTime = i.UpdatedTime;
-
-      expArray.push(ttsId);
-
-      // abaikan jika yang mensolvekan bukan helpdesk
-      if (!typeof (this.empMap[empId] !== 'undefined')) {
-        continue;
-      }
-
-      // abaikan jika tiket ternyata direopen kemudian
-      if (
-        typeof (this.reOpen[ttsId] && this.reOpen[ttsId] > updatedTime) !==
-        'undefined'
-      ) {
-        continue;
-      }
-
-      // perhitungkan sebagai solved untuk masing-masing employee
-      if (typeof this.solved['count'][empId] !== 'undefined') {
-        this.solved['count'][empId]++;
-        this.solved['detail'][empId];
-        this.solved['ttsId'] = ttsId;
-      } else {
-        this.solved['count'][empId] = 1;
-        this.solved['detail'][empId] = expArray;
-      }
-
-      // fungsi pengecekan array
-      function inArray(needle, haystack) {
-        const length = haystack.length;
-        for (let i = 0; i < length; i++) {
-          if (haystack[i] == needle) return true;
-        }
-        return false;
-      }
-
-      // perihtungan take over
-      // abaikan perhitungan take over jika ticket dicreate di periode sebelumnya
-      if (!inArray(ttsId, this.ttsPeriod)) {
-        continue;
-      }
-
-      // bukan take over jika sudah diassign ke employee yang bersangkutan
-      if (
-        typeof this.assigned['detail'][empId] &&
-        inArray(ttsId, this.assigned['detail'][empId] !== 'undefined')
-      ) {
-        continue;
-      }
-
-      // bukan take over jika yang create adalah employee yang bersangkutan
-      if (
-        typeof (
-          this.open['detail'][empId] &&
-          inArray(ttsId, this.open['detail'][empId])
-        ) !== 'undefined'
-      ) {
-        continue;
-      }
-
-      // perhitungkan take over
-      if (typeof this.takeOver['count'][empId] !== 'undefined') {
-        this.takeOver['count'][empId]++;
-        this.takeOver['detail'][empId];
-        this.takeOver['ttsId'] = ttsId;
-      } else {
-        this.takeOver['count'][empId] = 1;
-        this.takeOver['detail'][empId] = expArray;
-      }
-    }
-    return tts;
-  }
-
   // mengambil semua hasil dari semua fungsi
   async resultReport(periodStart: string, periodEnd: string) {
     this.getTtsReopen(periodStart, periodEnd);
     this.getTtsIncident(periodStart, periodEnd);
-    this.getTtsAssign(periodStart, periodEnd);
     this.getTtsSolve(periodStart, periodEnd);
+    this.getTtsAssign(periodStart, periodEnd);
   }
 }
