@@ -8,8 +8,8 @@ import { IndexModule } from './index/index.module';
 import { CustomersModule } from './customers/customers.module';
 import { EmployeesModule } from './employees/employees.module';
 import { Employees } from './employees/employees.entity';
-import { Tts, TtsPIC, TtsChange, Ttschange } from './tts/tts.entity';
-import { TtsModule } from './tts/tts.module';
+import { Tts, TtsPIC, TtsChange, Ttschange } from './tickets/tickets.entity';
+import { TtsModule } from './tickets/tickets.module';
 import { Customer } from './customers/customers.entity';
 
 @Module({

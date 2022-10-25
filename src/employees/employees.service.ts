@@ -20,12 +20,15 @@ export class EmployeesService {
   // '020' -> Cabang Medan
   async empMap() {
     const employee = await Employees.GetAllEmployee();
-    const empMap: any = {};
+    const empMap: any[] = [];
 
     // jika ada employee yang pindah keluar dari divisi helpdesk harus diset manual
     empMap['0200306'] = 'wardi';
     for (const i of employee) {
-      empMap[i.EmpId] = `${i.EmpFName} ${i.EmpLName}`;
+      const empObj: any = {};
+      empObj['employeeId'] = i.EmpId.toString();
+      empObj['employeeName'] = `${i.EmpFName} ${i.EmpLName}`;
+      empMap.push(empObj);
     }
     return empMap;
   }

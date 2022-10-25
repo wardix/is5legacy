@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Tts, TtsPIC, TtsChange, Ttschange } from './tts.entity';
+import { Tts, TtsPIC, TtsChange, Ttschange } from './tickets.entity';
 import { EmployeesService } from '../employees/employees.service';
 
 @Injectable()
@@ -22,6 +22,7 @@ export class TtsService {
     count: [],
     detail: [],
   };
+  protected data = {};
   protected ttsPeriod = {};
   protected empMap;
   protected report = {};
@@ -170,6 +171,7 @@ export class TtsService {
     // perhitungkan sebagai solved untuk masing-masing employee
 
     const expArray = [];
+    const dataReturn = [];
     for (let i = 0; i < tts.length; i++) {
       const ttsId = tts[i]['TtsId'];
       const empId = tts[i]['EmpId'];
@@ -259,8 +261,9 @@ export class TtsService {
         };
       }
     }
+
     for (const [empId, performance] of Object.entries(this.report)) {
-      let employee = this.empMap[empId];
+      var employee = this.empMap[empId];
       var devided =
         performance['open'] + performance['assigned'] + performance['takeover'];
       var final: any;
@@ -270,22 +273,22 @@ export class TtsService {
         final = ((performance['solved'] / devided) * 100).toFixed(2);
       }
       if (typeof employee !== 'undefined')
-        console.log(
-          'EmpId :',
-          empId,
-          'Nama :',
-          employee,
-          '         - Open :',
-          performance['open'],
-          'Assigned :',
-          performance['assigned'],
-          'Takeover :',
-          performance['takeover'],
-          'Solved :',
-          performance['solved'],
-          final,
+        dataReturn.push(
+          'nama ' +
+            employee +
+            ' open :' +
+            performance['open'] +
+            ' assigned :' +
+            performance['assigned'] +
+            ' takeover :' +
+            performance['takeover'] +
+            ' solved :' +
+            performance['solved'] +
+            ' final :' +
+            final,
         );
     }
+    this.data = dataReturn;
 
     return tts;
   }
@@ -296,5 +299,6 @@ export class TtsService {
     this.getTtsIncident(periodStart, periodEnd);
     this.getTtsSolve(periodStart, periodEnd);
     this.getTtsAssign(periodStart, periodEnd);
+    return this.data;
   }
 }
