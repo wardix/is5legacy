@@ -1,4 +1,11 @@
-import { Controller, Get, Param, UseGuards } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Param,
+  UseGuards,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CustomersService } from './customers.service';
 
@@ -8,7 +15,13 @@ export class CustomersController {
   constructor(private readonly customersService: CustomersService) {}
 
   @Get(':id')
-  getCustomerDetail(@Param('id') id: string) {
-    return this.customersService.getCustomerDetail(id);
+  getCustomerDetail(@Param('id') id: any) {
+    const customer = this.customersService.getCustomerDetail(id);
+    return customer;
+  }
+
+  @Get('/rrr')
+  async rrr() {
+    throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
   }
 }

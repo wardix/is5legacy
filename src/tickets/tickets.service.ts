@@ -23,7 +23,7 @@ export class TtsService {
     detail: [],
   };
   protected data = {};
-  protected ttsPeriod = {};
+  protected ttsPeriod = [];
   protected empMap;
   protected report = {};
   protected reOpen = {};
@@ -43,13 +43,14 @@ export class TtsService {
   // ambil setiap ticket yang reopen pada waktu sesuai dengan periode yang ditentukan
   async getTtsReopen(periodStart: string, periodEnd: string) {
     const tts = await TtsChange.getAllTtsReopen(periodStart, periodEnd);
+    const temp = [];
     const reOpen: any = {};
     for (const i of tts) {
       const ttsId = i.TtsId;
       const updatedTime = i.UpdatedTime;
       reOpen[ttsId] = updatedTime;
     }
-    return reOpen;
+    return tts;
   }
 
   // ambil semua ticket insiden (TtsTypeId = 2)
@@ -66,7 +67,7 @@ export class TtsService {
 
       expArray.push(ttsId);
       // diopen oleh employee yang tidak ada di map [bukan helpdesk], abaikan
-      if (!typeof (this.empMap[empId] !== 'undefined')) {
+      if (!typeof (this.getEmployee(empId) !== 'undefined')) {
         continue;
       }
 
@@ -79,7 +80,6 @@ export class TtsService {
         this.open['detail'][empId] = expArray;
       }
     }
-
     return tts;
   }
 
@@ -95,9 +95,8 @@ export class TtsService {
       const updatedTime = tts[i]['UpdatedTime'];
 
       expArray.push(ttsId);
-
       // abaikan jika yang mensolvekan bukan helpdesk
-      if (!typeof (this.empMap[empId] !== 'undefined')) {
+      if (!typeof (this.getEmployee(empId) !== 'undefined')) {
         continue;
       }
 
@@ -119,25 +118,16 @@ export class TtsService {
         this.solved['detail'][empId] = expArray;
       }
 
-      // fungsi pengecekan array
-      function inArray(needle, haystack) {
-        const length = haystack.length;
-        for (let i = 0; i < length; i++) {
-          if (haystack[i] == needle) return true;
-        }
-        return false;
-      }
-
       // perihtungan take over
       // abaikan perhitungan take over jika ticket dicreate di periode sebelumnya
-      if (!inArray(ttsId, this.ttsPeriod)) {
+      if (!this.inArray(ttsId, this.ttsPeriod)) {
         continue;
       }
 
       // bukan take over jika sudah diassign ke employee yang bersangkutan
       if (
         typeof this.assigned['detail'][empId] &&
-        inArray(ttsId, this.assigned['detail'][empId] !== 'undefined')
+        this.inArray(ttsId, this.assigned['detail'][empId] !== 'undefined')
       ) {
         continue;
       }
@@ -146,12 +136,13 @@ export class TtsService {
       if (
         typeof (
           this.open['detail'][empId] &&
-          inArray(ttsId, this.open['detail'][empId])
+          this.inArray(ttsId, this.open['detail'][empId])
         ) !== 'undefined'
       ) {
         continue;
       }
 
+      // console.log('6');
       // perhitungkan take over
       if (typeof this.takeOver['count'][empId] !== 'undefined') {
         this.takeOver['count'][empId]++;
@@ -162,6 +153,7 @@ export class TtsService {
         this.takeOver['detail'][empId] = expArray;
       }
     }
+
     return tts;
   }
 
@@ -171,7 +163,6 @@ export class TtsService {
     // perhitungkan sebagai solved untuk masing-masing employee
 
     const expArray = [];
-    const dataReturn = [];
     for (let i = 0; i < tts.length; i++) {
       const ttsId = tts[i]['TtsId'];
       const empId = tts[i]['EmpId'];
@@ -179,7 +170,7 @@ export class TtsService {
       expArray.push(ttsId);
 
       // abaikan jika yang diassign selain helpdesk
-      if (!typeof (this.empMap[empId] !== 'undefined')) {
+      if (!typeof (this.getEmployee(empId) !== 'undefined')) {
         continue;
       }
 
@@ -190,16 +181,8 @@ export class TtsService {
         this.open['count'][empId] = 0;
       }
 
-      // fungsi pengecekan array
-      function inArray(needle, ...haystack) {
-        const length = haystack.length;
-        for (let i = 0; i < length; i++) {
-          if (haystack[i] == needle) return true;
-        }
-        return false;
-      }
       // abaikan perhitungan assigned jika yang open orang yang sama
-      if (inArray(ttsId, this.open['detail'][empId])) {
+      if (this.inArray(ttsId, this.open['detail'][empId])) {
         continue;
       }
 
@@ -212,58 +195,64 @@ export class TtsService {
         this.assigned['count'][empId] = 1;
         this.assigned['detail'][empId] = expArray;
       }
+    }
+    return tts;
+  }
 
-      for (const [empId, count] of Object.entries(this.open['count'])) {
-        this.report[empId] = {
-          open: count,
-          assigned: 0,
-          takeover: 0,
-          solved: 0,
-        };
-      }
+  // fungsi menghitung total
+  getAllReport() {
+    const dataReturn = [];
+    for (const [empId, count] of Object.entries(this.open['count'])) {
+      this.report[empId] = {
+        open: count,
+        assigned: 0,
+        takeover: 0,
+        solved: 0,
+      };
+    }
 
-      for (const [empId, count] of Object.entries(this.assigned['count'])) {
-        if (typeof this.report[empId] !== 'undefined') {
-          this.report[empId]['assigned'] = count;
-          continue;
-        }
-        this.report[empId] = {
-          open: 0,
-          assigned: count,
-          takeover: 0,
-          solved: 0,
-        };
+    for (const [empId, count] of Object.entries(this.assigned['count'])) {
+      if (typeof this.report[empId] !== 'undefined') {
+        this.report[empId]['assigned'] = count;
+        continue;
       }
+      this.report[empId] = {
+        open: 0,
+        assigned: count,
+        takeover: 0,
+        solved: 0,
+      };
+    }
 
-      for (const [empId, count] of Object.entries(this.takeOver['count'])) {
-        if (typeof this.report[empId] !== 'undefined') {
-          this.report[empId]['takeover'] = count;
-          continue;
-        }
-        this.report[empId] = {
-          open: 0,
-          assigned: 0,
-          takeover: count,
-          solved: 0,
-        };
+    for (const [empId, count] of Object.entries(this.takeOver['count'])) {
+      if (typeof this.report[empId] !== 'undefined') {
+        this.report[empId]['takeover'] = count;
+        continue;
       }
+      this.report[empId] = {
+        open: 0,
+        assigned: 0,
+        takeover: count,
+        solved: 0,
+      };
+    }
 
-      for (const [empId, count] of Object.entries(this.solved['count'])) {
-        if (typeof this.report[empId] !== 'undefined') {
-          this.report[empId]['solved'] = count;
-          continue;
-        }
-        this.report[empId] = {
-          open: 0,
-          assigned: 0,
-          takeover: 0,
-          solved: count,
-        };
+    for (const [empId, count] of Object.entries(this.solved['count'])) {
+      if (typeof this.report[empId] !== 'undefined') {
+        this.report[empId]['solved'] = count;
+        continue;
       }
+      this.report[empId] = {
+        open: 0,
+        assigned: 0,
+        takeover: 0,
+        solved: count,
+      };
     }
 
     for (const [empId, performance] of Object.entries(this.report)) {
-      var employee = this.empMap[empId];
+      var employee = this.getEmployee(empId);
+
       var devided =
         performance['open'] + performance['assigned'] + performance['takeover'];
       var final: any;
@@ -273,32 +262,39 @@ export class TtsService {
         final = ((performance['solved'] / devided) * 100).toFixed(2);
       }
       if (typeof employee !== 'undefined')
-        dataReturn.push(
-          'nama ' +
-            employee +
-            ' open :' +
-            performance['open'] +
-            ' assigned :' +
-            performance['assigned'] +
-            ' takeover :' +
-            performance['takeover'] +
-            ' solved :' +
-            performance['solved'] +
-            ' final :' +
-            final,
-        );
+        dataReturn.push({
+          name: employee['empName'],
+          open: performance['open'],
+          assigned: performance['assigned'],
+          takeover: performance['takeover'],
+          solved: performance['solved'],
+          final: final,
+        });
     }
     this.data = dataReturn;
+  }
 
-    return tts;
+  // fungsi empMap
+  getEmployee(empId) {
+    return this.empMap.find((em) => empId === em.empId);
+  }
+
+  // fungsi pengecekan array
+  inArray(needle, ...haystack) {
+    const length = haystack.length;
+    for (let i = 0; i < length; i++) {
+      if (haystack[i] == needle) return true;
+    }
+    return false;
   }
 
   // mengambil semua hasil dari semua fungsi
   async resultReport(periodStart: string, periodEnd: string) {
-    this.getTtsReopen(periodStart, periodEnd);
-    this.getTtsIncident(periodStart, periodEnd);
-    this.getTtsSolve(periodStart, periodEnd);
-    this.getTtsAssign(periodStart, periodEnd);
+    await this.getTtsAssign(periodStart, periodEnd);
+    await this.getTtsReopen(periodStart, periodEnd);
+    await this.getTtsIncident(periodStart, periodEnd);
+    await this.getTtsSolve(periodStart, periodEnd);
+    this.getAllReport();
     return this.data;
   }
 }

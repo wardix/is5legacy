@@ -14,8 +14,8 @@ export class Employees extends BaseEntity {
   @Column()
   EmpEmail: string;
 
-  @Column()
-  EmpJoinStatus: string;
+  // @Column()
+  // EmpJoinStatus: string;
 
   static GetAllEmployee() {
     return this.createQueryBuilder('Employee')

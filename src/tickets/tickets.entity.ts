@@ -90,5 +90,6 @@ export class Ttschange extends BaseEntity {
       .andWhere('TtsChange.NewValue = "Call"')
       .andWhere(`b.UpdatedTime BETWEEN '${periodStart}' AND '${periodEnd}'`)
       .getRawMany();
+    // .getSql()
   }
 }

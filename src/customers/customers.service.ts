@@ -11,15 +11,26 @@ export class CustomersService {
   ) {}
 
   async getCustomerDetail(customersId: string) {
-    // return await Customer.GetAllCustomers(customerId);
-    const queryResult = await this.customerRepository.findOneBy({
-      CustId: customersId,
-    });
-    return this.transformCustomerQuery(queryResult);
+    var queryResult;
+    try {
+      queryResult = await this.customerRepository.findOneBy({
+        CustId: customersId,
+      });
+    } catch (error) {
+      queryResult = null;
+      console.log(error);
+    }
+
+    if (queryResult) {
+      const expArray: any = [];
+      expArray.push(this.transformCustomerQuery(queryResult));
+      return expArray;
+    }
   }
 
   private transformCustomerQuery(obj) {
     return {
+      id: obj.CustId,
       name: obj.CustName,
       address: (obj.CustResAdd1 + ' ' + obj.CustResAdd2).trim(),
       email: obj.CustEmail,

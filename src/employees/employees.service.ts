@@ -23,11 +23,13 @@ export class EmployeesService {
     const empMap: any[] = [];
 
     // jika ada employee yang pindah keluar dari divisi helpdesk harus diset manual
-    empMap['0200306'] = 'wardi';
+    // empObj['empId'] = '0200306';
+    // empObj['empName'] = 'wardi';
+
     for (const i of employee) {
       const empObj: any = {};
-      empObj['employeeId'] = i.EmpId.toString();
-      empObj['employeeName'] = `${i.EmpFName} ${i.EmpLName}`;
+      empObj['empId'] = i.EmpId;
+      empObj['empName'] = i.EmpFName + ' ' + i.EmpLName;
       empMap.push(empObj);
     }
     return empMap;
