@@ -2,7 +2,6 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
 
-import { HelloModule } from './hello/hello.module';
 import { AuthModule } from './auth/auth.module';
 import { IndexModule } from './index/index.module';
 import { CustomersModule } from './customers/customers.module';
@@ -25,7 +24,6 @@ import { Customer } from './customers/customers.entity';
       entities: [Employees, Tts, Customer, TtsPIC, TtsChange, Ttschange],
       synchronize: true,
     }),
-    HelloModule,
     AuthModule,
     IndexModule,
     CustomersModule,
