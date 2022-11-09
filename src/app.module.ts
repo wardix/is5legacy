@@ -6,7 +6,7 @@ import { AuthModule } from './auth/auth.module';
 import { IndexModule } from './index/index.module';
 import { CustomersModule } from './customers/customers.module';
 import { EmployeesModule } from './employees/employees.module';
-import { Employees } from './employees/employees.entity';
+import { Employee } from './employees/employee.entity';
 import { Tts, TtsPIC, TtsChange, Ttschange } from './tickets/tickets.entity';
 import { TtsModule } from './tickets/tickets.module';
 import { Customer } from './customers/customers.entity';
@@ -21,7 +21,7 @@ import { Customer } from './customers/customers.entity';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DBNAME,
-      entities: [Employees, Tts, Customer, TtsPIC, TtsChange, Ttschange],
+      entities: [Employee, Tts, Customer, TtsPIC, TtsChange, Ttschange],
       synchronize: true,
     }),
     AuthModule,

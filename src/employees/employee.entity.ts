@@ -1,7 +1,7 @@
 import { BaseEntity, Entity, Column, PrimaryColumn } from 'typeorm';
 
 @Entity({ name: 'Employee', synchronize: false })
-export class Employees extends BaseEntity {
+export class Employee extends BaseEntity {
   @PrimaryColumn()
   EmpId: string;
 
@@ -14,8 +14,8 @@ export class Employees extends BaseEntity {
   @Column()
   EmpEmail: string;
 
-  // @Column()
-  // EmpJoinStatus: string;
+  @Column()
+  EmpJoinStatus: string;
 
   static GetAllEmployee() {
     return this.createQueryBuilder('Employee')

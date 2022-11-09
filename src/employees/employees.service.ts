@@ -2,13 +2,13 @@ import { Injectable } from '@nestjs/common';
 import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
 
-import { Employees } from './employees.entity';
+import { Employee } from './employee.entity';
 
 @Injectable()
 export class EmployeesService {
   constructor(
-    @InjectRepository(Employees)
-    private readonly employeeRepository: Repository<Employees>,
+    @InjectRepository(Employee)
+    private readonly employeeRepository: Repository<Employee>,
     @InjectDataSource()
     private readonly dataSource: DataSource,
   ) {}
@@ -40,7 +40,7 @@ export class EmployeesService {
   // employee mapping dari divisi helpdesk '01' -> 'Helpdesk Shift', '17' -> 'Helpdesk Reguler'
   // '020' -> Cabang Medan
   async empMap() {
-    const employee = await Employees.GetAllEmployee();
+    const employee = await Employee.GetAllEmployee();
     const empMap: any[] = [];
 
     // jika ada employee yang pindah keluar dari divisi helpdesk harus diset manual
