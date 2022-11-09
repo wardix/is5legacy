@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
+import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { Repository, DataSource } from 'typeorm';
+
 import { Employees } from './employees.entity';
 
 @Injectable()
@@ -8,12 +9,32 @@ export class EmployeesService {
   constructor(
     @InjectRepository(Employees)
     private readonly employeeRepository: Repository<Employees>,
+    @InjectDataSource()
     private readonly dataSource: DataSource,
   ) {}
 
   async findOne(id: string) {
     const employee = await this.employeeRepository.findOneBy({ EmpId: id });
     return this.transformEmployee(employee);
+  }
+
+  async findAll() {
+    const employees = await this.employeeRepository.find();
+    return employees.map((e) => this.transformEmployee(e));
+  }
+
+  async authenticate(username: string, password: string) {
+    const query = `
+      SELECT EmpId, EmpFName, EmpLName, EmpEmail
+      FROM Employee
+      WHERE EmpId = '${username}' AND PASSWORD('${password}') = EmpPassword`;
+    const queryResult = await this.dataSource.query(query);
+
+    if (queryResult.length === 0) {
+      return null;
+    }
+
+    return this.transformEmployee(queryResult[0]);
   }
 
   // employee mapping dari divisi helpdesk '01' -> 'Helpdesk Shift', '17' -> 'Helpdesk Reguler'
