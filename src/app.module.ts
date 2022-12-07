@@ -10,6 +10,8 @@ import { Employee } from './employees/employee.entity';
 import { Tts, TtsPIC, TtsChange, Ttschange } from './tickets/tickets.entity';
 import { TtsModule } from './tickets/tickets.module';
 import { Customer } from './customers/customers.entity';
+import { SalesPromoModule } from './sales-promo/sales-promo.module';
+import { SalesPromo } from './sales-promo/sales-promo.entity';
 
 @Module({
   imports: [
@@ -21,7 +23,15 @@ import { Customer } from './customers/customers.entity';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DBNAME,
-      entities: [Employee, Tts, Customer, TtsPIC, TtsChange, Ttschange],
+      entities: [
+        Employee,
+        Tts,
+        Customer,
+        TtsPIC,
+        TtsChange,
+        Ttschange,
+        SalesPromo,
+      ],
       synchronize: true,
     }),
     AuthModule,
@@ -29,6 +39,7 @@ import { Customer } from './customers/customers.entity';
     CustomersModule,
     EmployeesModule,
     TtsModule,
+    SalesPromoModule,
   ],
   controllers: [],
   providers: [],
