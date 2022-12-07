@@ -6,15 +6,15 @@ import {
   ParseIntPipe,
   Query,
   Req,
-  // UseGuards,
+  UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import { GetPromoFilterDto } from './dto/get-promo-filter.dto';
 import { SalesPromoService } from './sales-promo.service';
 import { Request } from 'express';
-// import { AuthGuard } from '@nestjs/passport';
+import { AuthGuard } from '@nestjs/passport';
 
-// @UseGuards(AuthGuard('api-key'))
+@UseGuards(AuthGuard('api-key'))
 @Controller('promo')
 export class SalesPromoController {
   constructor(private salesPromoService: SalesPromoService) {}
