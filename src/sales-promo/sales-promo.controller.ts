@@ -2,7 +2,9 @@ import {
   Controller,
   DefaultValuePipe,
   Get,
+  HttpCode,
   HttpStatus,
+  Param,
   ParseIntPipe,
   Query,
   Req,
@@ -20,6 +22,7 @@ export class SalesPromoController {
   constructor(private salesPromoService: SalesPromoService) {}
 
   @Get()
+  @HttpCode(200)
   async getAllDataPromo(
     @Req() req: Request,
     @Query('page', new DefaultValuePipe(1), ParseIntPipe) page = 1,
@@ -39,16 +42,25 @@ export class SalesPromoController {
         },
       );
 
-      return {
-        statusCode: HttpStatus.OK,
-        message: resultAllPromo,
-        error: '',
-      };
+      return resultAllPromo;
     } catch (error) {
       return {
-        statusCode: HttpStatus.BAD_GATEWAY,
-        message: {},
-        error: error.message,
+        message: error.message,
+      };
+    }
+  }
+
+  @Get(':id')
+  @HttpCode(200)
+  async getDataPromoByID(@Param('id', ParseIntPipe) id: number) {
+    try {
+      const resultGetPromoByID =
+        await this.salesPromoService.getDataPromoByIDService(id);
+
+      return resultGetPromoByID;
+    } catch (error) {
+      return {
+        message: error.message,
       };
     }
   }

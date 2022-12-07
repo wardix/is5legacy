@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { GetPromoFilterDto } from './dto/get-promo-filter.dto';
 import { SalesPromoRepository } from './sales-promo.repository';
 import { SalesPromo } from './sales-promo.entity';
@@ -16,5 +16,17 @@ export class SalesPromoService {
       options,
       filterPromoDto,
     );
+  }
+
+  async getDataPromoByIDService(id: number): Promise<SalesPromo> {
+    const found = await this.salesPromoRepository.findOne({
+      where: { id },
+    });
+
+    if (!found) {
+      throw new NotFoundException(`Promo dengan ID ${id} tidak ditemukan`);
+    }
+
+    return found;
   }
 }
