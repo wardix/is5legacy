@@ -2,11 +2,6 @@ import { Injectable } from '@nestjs/common';
 import { Repository, DataSource } from 'typeorm';
 import { GetPromoFilterDto } from './dto/get-promo-filter.dto';
 import { SalesPromo } from './sales-promo.entity';
-import {
-  paginate,
-  Pagination,
-  IPaginationOptions,
-} from 'nestjs-typeorm-paginate';
 
 @Injectable()
 export class SalesPromoRepository extends Repository<SalesPromo> {
@@ -15,9 +10,8 @@ export class SalesPromoRepository extends Repository<SalesPromo> {
   }
 
   async getAllPromoRepository(
-    options: IPaginationOptions,
     filterPromoDto: GetPromoFilterDto,
-  ): Promise<Pagination<SalesPromo>> {
+  ): Promise<SalesPromo[]> {
     const { branchId, to, active } = filterPromoDto;
     const queryBuilder = this.createQueryBuilder('SalesPromo');
 
@@ -26,15 +20,15 @@ export class SalesPromoRepository extends Repository<SalesPromo> {
     }
 
     if (to) {
-      queryBuilder.andWhere('(SalesPromo.to LIKE :to)', { to: `%${to}%` });
+      queryBuilder.andWhere('(SalesPromo.to >= :to)', { to });
     }
 
     if (active) {
       queryBuilder.andWhere('(SalesPromo.active = :active)', { active });
     }
 
-    queryBuilder.getMany();
+    const promos = await queryBuilder.getMany();
 
-    return paginate<SalesPromo>(queryBuilder, options);
+    return promos;
   }
 }
