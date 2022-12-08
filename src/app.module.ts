@@ -12,7 +12,7 @@ import { TtsModule } from './tickets/tickets.module';
 import { Customer } from './customers/customers.entity';
 import { SalesPromoModule } from './sales-promo/sales-promo.module';
 import { SalesPromo } from './sales-promo/sales-promo.entity';
-import { LayananModule } from './services/service.module';
+import { ServicesModule } from './services/services.module';
 
 @Module({
   imports: [
@@ -41,7 +41,7 @@ import { LayananModule } from './services/service.module';
     EmployeesModule,
     TtsModule,
     SalesPromoModule,
-    LayananModule,
+    ServicesModule,
   ],
   controllers: [],
   providers: [],

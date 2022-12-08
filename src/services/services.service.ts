@@ -4,10 +4,10 @@ import { Connection } from 'mysql2';
 import { GetServiceFilterDto } from './dto/get-service-filter.dto';
 
 @Injectable()
-export class LayananService {
+export class ServicesService {
   constructor(@InjectDataSource() private readonly connection: Connection) {}
 
-  async getAllLayananService(filterServiceDto: GetServiceFilterDto) {
+  async getAllServicesService(filterServiceDto: GetServiceFilterDto) {
     const { branchId } = filterServiceDto;
 
     if (branchId) {
