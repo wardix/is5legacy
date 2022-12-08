@@ -1,8 +1,7 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
 import { GetPromoFilterDto } from './dto/get-promo-filter.dto';
 import { SalesPromoRepository } from './sales-promo.repository';
 import { SalesPromo } from './sales-promo.entity';
-import { Pagination, IPaginationOptions } from 'nestjs-typeorm-paginate';
 
 @Injectable()
 export class SalesPromoService {
@@ -10,23 +9,9 @@ export class SalesPromoService {
 
   async getAllPromoService(
     filterPromoDto: GetPromoFilterDto,
-    options: IPaginationOptions,
-  ): Promise<Pagination<SalesPromo>> {
-    return this.salesPromoRepository.getAllPromoRepository(
-      options,
+  ): Promise<SalesPromo[]> {
+    return await this.salesPromoRepository.getAllPromoRepository(
       filterPromoDto,
     );
-  }
-
-  async getDataPromoByIDService(id: number): Promise<SalesPromo> {
-    const found = await this.salesPromoRepository.findOne({
-      where: { id },
-    });
-
-    if (!found) {
-      throw new NotFoundException(`Promo dengan ID ${id} tidak ditemukan`);
-    }
-
-    return found;
   }
 }
