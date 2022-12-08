@@ -1,17 +1,13 @@
 import {
   Controller,
-  DefaultValuePipe,
   Get,
   HttpCode,
-  ParseIntPipe,
   Query,
-  Req,
   UseGuards,
   ValidationPipe,
 } from '@nestjs/common';
 import { GetPromoFilterDto } from './dto/get-promo-filter.dto';
 import { SalesPromoService } from './sales-promo.service';
-import { Request } from 'express';
 import { AuthGuard } from '@nestjs/passport';
 
 @UseGuards(AuthGuard('api-key'))

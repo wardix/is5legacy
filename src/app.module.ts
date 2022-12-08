@@ -12,6 +12,7 @@ import { TtsModule } from './tickets/tickets.module';
 import { Customer } from './customers/customers.entity';
 import { SalesPromoModule } from './sales-promo/sales-promo.module';
 import { SalesPromo } from './sales-promo/sales-promo.entity';
+import { ServicesModule } from './services/services.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { SalesPromo } from './sales-promo/sales-promo.entity';
     EmployeesModule,
     TtsModule,
     SalesPromoModule,
+    ServicesModule,
   ],
   controllers: [],
   providers: [],
