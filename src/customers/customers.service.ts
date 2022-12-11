@@ -11,7 +11,7 @@ export class CustomersService {
   ) {}
 
   async getCustomerDetail(customersId: string) {
-    var queryResult;
+    let queryResult;
     try {
       queryResult = await this.customerRepository.findOneBy({
         CustId: customersId,
@@ -32,10 +32,15 @@ export class CustomersService {
     return {
       id: obj.CustId,
       name: obj.CustName,
+      gender: obj.CustGender,
+      place_of_birth: obj.CustPOB,
+      date_of_birth: obj.CustDOB,
       address: (obj.CustResAdd1 + ' ' + obj.CustResAdd2).trim(),
       email: obj.CustEmail,
+      identityType: obj.CustIdType != 0 ? 'Paspor' : 'KTP',
       identityNumber: obj.CustIdNumber,
       phoneNumber: obj.CustHP,
+      companyName: obj.CustCompany,
       companyAddress: (obj.CustOfficeAdd1 + ' ' + obj.CustOfficeAdd2).trim(),
       companyPhoneNumber: obj.CustOfficePhone,
       billingName: obj.CustBillCP,
@@ -44,6 +49,7 @@ export class CustomersService {
       technicalName: obj.CustTechCP,
       technicalContact: obj.CustTechCPPhone,
       technicalEmail: obj.CustTechCPEmail,
+      reference_id: obj.SalesId,
     };
   }
 }
