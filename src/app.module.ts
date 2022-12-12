@@ -10,6 +10,9 @@ import { Employee } from './employees/employee.entity';
 import { Tts, TtsPIC, TtsChange, Ttschange } from './tickets/tickets.entity';
 import { TtsModule } from './tickets/tickets.module';
 import { Customer } from './customers/customers.entity';
+import { TagihanModule } from './tagihan/tagihan.module';
+import { NOCFiber } from './tagihan/entities/noc-fiber.entity';
+import { Tagihan } from './tagihan/entities/tagihan.entity';
 import { SalesPromoModule } from './sales-promo/sales-promo.module';
 import { SalesPromo } from './sales-promo/sales-promo.entity';
 import { ServicesModule } from './services/services.module';
@@ -33,6 +36,8 @@ import { CustomerServices } from './customers/customer-services.entity';
         TtsPIC,
         TtsChange,
         Ttschange,
+        NOCFiber,
+        Tagihan,
         SalesPromo,
       ],
       synchronize: true,
@@ -42,6 +47,7 @@ import { CustomerServices } from './customers/customer-services.entity';
     CustomersModule,
     EmployeesModule,
     TtsModule,
+    TagihanModule,
     SalesPromoModule,
     ServicesModule,
   ],
