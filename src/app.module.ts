@@ -11,9 +11,12 @@ import { Tts, TtsPIC, TtsChange, Ttschange } from './tickets/tickets.entity';
 import { TtsModule } from './tickets/tickets.module';
 import { Customer } from './customers/customers.entity';
 import { TagihanModule } from './tagihan/tagihan.module';
-import { DataSource } from 'typeorm';
 import { NOCFiber } from './tagihan/entities/noc-fiber.entity';
 import { Tagihan } from './tagihan/entities/tagihan.entity';
+import { SalesPromoModule } from './sales-promo/sales-promo.module';
+import { SalesPromo } from './sales-promo/sales-promo.entity';
+import { ServicesModule } from './services/services.module';
+import { CustomerServices } from './customers/customer-services.entity';
 
 @Module({
   imports: [
@@ -25,7 +28,18 @@ import { Tagihan } from './tagihan/entities/tagihan.entity';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DBNAME,
-      entities: [Employee, Tts, Customer, TtsPIC, TtsChange, Ttschange, NOCFiber, Tagihan],
+      entities: [
+        Employee,
+        Tts,
+        Customer,
+        CustomerServices,
+        TtsPIC,
+        TtsChange,
+        Ttschange,
+        NOCFiber,
+        Tagihan,
+        SalesPromo,
+      ],
       synchronize: true,
     }),
     AuthModule,
@@ -34,6 +48,8 @@ import { Tagihan } from './tagihan/entities/tagihan.entity';
     EmployeesModule,
     TtsModule,
     TagihanModule,
+    SalesPromoModule,
+    ServicesModule,
   ],
   controllers: [],
   providers: [],
