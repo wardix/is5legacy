@@ -10,6 +10,10 @@ import { Employee } from './employees/employee.entity';
 import { Tts, TtsPIC, TtsChange, Ttschange } from './tickets/tickets.entity';
 import { TtsModule } from './tickets/tickets.module';
 import { Customer } from './customers/customers.entity';
+import { TagihanModule } from './tagihan/tagihan.module';
+import { DataSource } from 'typeorm';
+import { NOCFiber } from './tagihan/entities/noc-fiber.entity';
+import { Tagihan } from './tagihan/entities/tagihan.entity';
 
 @Module({
   imports: [
@@ -21,7 +25,7 @@ import { Customer } from './customers/customers.entity';
       username: process.env.DB_USER,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_DBNAME,
-      entities: [Employee, Tts, Customer, TtsPIC, TtsChange, Ttschange],
+      entities: [Employee, Tts, Customer, TtsPIC, TtsChange, Ttschange, NOCFiber, Tagihan],
       synchronize: true,
     }),
     AuthModule,
@@ -29,6 +33,7 @@ import { Customer } from './customers/customers.entity';
     CustomersModule,
     EmployeesModule,
     TtsModule,
+    TagihanModule,
   ],
   controllers: [],
   providers: [],
