@@ -1,7 +1,9 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, UseInterceptors, ClassSerializerInterceptor } from '@nestjs/common';
+import { Controller, Get, UseInterceptors, UseGuards } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 import { TagihanVendorInterceptor } from './tagihan-vendor.interceptor';
 import { TagihanService } from './tagihan.service';
 
+@UseGuards(AuthGuard('api-key'))
 @Controller('tagihan')
 export class TagihanController {
   constructor(private readonly tagihanService: TagihanService) {}
