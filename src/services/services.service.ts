@@ -7,6 +7,10 @@ import { GetServiceFilterDto } from './dto/get-service-filter.dto';
 export class ServicesService {
   constructor(@InjectDataSource() private readonly connection: Connection) {}
 
+  /* TASK :
+   * 1. Buat Entity untuk Service
+   * 2. Buat Repository untuk Service
+   */
   async getAllServicesService(filterServiceDto: GetServiceFilterDto) {
     const { branchId } = filterServiceDto;
 

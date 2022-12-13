@@ -9,10 +9,11 @@ import { EmployeesModule } from './employees/employees.module';
 import { Employee } from './employees/employee.entity';
 import { Tts, TtsPIC, TtsChange, Ttschange } from './tickets/tickets.entity';
 import { TtsModule } from './tickets/tickets.module';
-import { Customer } from './customers/customers.entity';
+import { Customer } from './customers/customer.entity';
 import { SalesPromoModule } from './sales-promo/sales-promo.module';
 import { SalesPromo } from './sales-promo/sales-promo.entity';
 import { ServicesModule } from './services/services.module';
+import { CustomerServices } from './customers/subscriber.entity';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { ServicesModule } from './services/services.module';
         Employee,
         Tts,
         Customer,
+        CustomerServices,
         TtsPIC,
         TtsChange,
         Ttschange,
