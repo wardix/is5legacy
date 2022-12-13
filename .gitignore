@@ -36,3 +36,20 @@ lerna-debug.log*
 
 # Environment
 .env
+
+# Node artifact files
+node_modules/
+dist/
+
+# Log files
+*.log
+
+# Package files
+*.jar
+
+# Maven
+target/
+dist/
+
+# JetBrains IDE
+.idea/
