@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Customer } from './customers.entity';
+import { Customer } from './customer.entity';
 
 @Injectable()
 export class CustomersService {
@@ -11,7 +11,7 @@ export class CustomersService {
   ) {}
 
   async getCustomerDetail(customersId: string) {
-    var queryResult;
+    let queryResult;
     try {
       queryResult = await this.customerRepository.findOneBy({
         CustId: customersId,
