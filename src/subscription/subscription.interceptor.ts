@@ -7,7 +7,6 @@ export class SubscriptionInterceptor<T> implements NestInterceptor {
         return next
             .handle()
             .pipe((map(function (data) {
-                console.log(data)
                 return data.reduce((obj, i) => {
                     obj[i.CID] = {
                         "id": i.id,
