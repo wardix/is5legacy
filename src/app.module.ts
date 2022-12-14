@@ -13,7 +13,6 @@ import { Customer } from './customers/customer.entity';
 import { SalesPromoModule } from './sales-promo/sales-promo.module';
 import { SalesPromo } from './sales-promo/sales-promo.entity';
 import { ServicesModule } from './services/services.module';
-import { CustomerServices } from './customers/subscriber.entity';
 
 @Module({
   imports: [
@@ -29,7 +28,6 @@ import { CustomerServices } from './customers/subscriber.entity';
         Employee,
         Tts,
         Customer,
-        CustomerServices,
         TtsPIC,
         TtsChange,
         Ttschange,
