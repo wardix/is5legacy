@@ -1,7 +1,6 @@
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-
 import { AuthModule } from './auth/auth.module';
 import { IndexModule } from './index/index.module';
 import { CustomersModule } from './customers/customers.module';
@@ -10,10 +9,13 @@ import { Employee } from './employees/employee.entity';
 import { Tts, TtsPIC, TtsChange, Ttschange } from './tickets/tickets.entity';
 import { TtsModule } from './tickets/tickets.module';
 import { Customer } from './customers/customers.entity';
+import { NOCFiber } from './subscription/entities/noc-fiber.entity';
 import { SalesPromoModule } from './sales-promo/sales-promo.module';
 import { SalesPromo } from './sales-promo/sales-promo.entity';
 import { ServicesModule } from './services/services.module';
 import { CustomerServices } from './customers/customer-services.entity';
+import { CustomerServiceTechnicalCustom } from './subscription/entities/customer-service-technical-custom.entity';
+import { SubscriptionModule } from './subscription/subscription.module';
 
 @Module({
   imports: [
@@ -33,6 +35,8 @@ import { CustomerServices } from './customers/customer-services.entity';
         TtsPIC,
         TtsChange,
         Ttschange,
+        NOCFiber,
+        CustomerServiceTechnicalCustom,
         SalesPromo,
       ],
       synchronize: true,
@@ -42,6 +46,7 @@ import { CustomerServices } from './customers/customer-services.entity';
     CustomersModule,
     EmployeesModule,
     TtsModule,
+    SubscriptionModule,
     SalesPromoModule,
     ServicesModule,
   ],
