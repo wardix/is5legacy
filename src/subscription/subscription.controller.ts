@@ -12,7 +12,7 @@ export class SubscriptionController {
 
   @Get('get-customer-cid')
   @UseInterceptors(SubscriptionInterceptor)
-  async getCustomerCID(@Query(ValidationPipe) getCustomerCIDDto: GetCustomerCIDDto): Promise<any> {
+  async getCustomerCID(@Query(new ValidationPipe({ transform: true })) getCustomerCIDDto: GetCustomerCIDDto): Promise<any> {
     return await this.subscriptionService.getCustomerCID(getCustomerCIDDto)
   }
 
