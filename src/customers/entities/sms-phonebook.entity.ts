@@ -7,7 +7,7 @@ import {
 } from 'typeorm';
 
 @Entity({ name: 'sms_phonebook', synchronize: false })
-export class Customer extends BaseEntity {
+export class SMSPhonebook extends BaseEntity {
   @PrimaryColumn()
   id: string;
 

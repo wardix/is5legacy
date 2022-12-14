@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { Repository, DataSource } from 'typeorm';
-import { Customer } from './customer.entity';
 import { GetCustomerFilterDto } from './dto/get-customer-filter.dto';
+import { Customer } from './entities/customer.entity';
 
 @Injectable()
 export class CustomerRepository extends Repository<Customer> {
@@ -31,10 +31,8 @@ export class CustomerRepository extends Repository<Customer> {
         "nc.NPWP AS 'npwp_number'",
         "c.CustOfficePhone AS 'company_phone_number'",
         "c.CustBillCP AS 'billing_name'",
-        "GROUP_CONCAT((CASE WHEN sp.billing = 1 THEN sp.phone ELSE '' END) SEPARATOR '') AS 'billing_phone'",
         "c.CustBillCPEmail AS 'billing_email'",
         "c.CustTechCP AS 'technical_name'",
-        "GROUP_CONCAT((CASE WHEN sp.technical = 1 THEN sp.phone ELSE '' END) SEPARATOR '') AS 'technical_phone'",
         "c.CustTechCPEmail AS 'technical_email'",
         "cs.ServiceId AS 'package_init'",
         "itm.`Month` AS 'top_count'",
@@ -42,12 +40,23 @@ export class CustomerRepository extends Repository<Customer> {
       ])
       .leftJoin('CustomerServices', 'cs', 'cs.CustId = c.CustId')
       .leftJoin('NPWP_Customer', 'nc', 'nc.CustId = c.CustId')
-      .leftJoin('sms_phonebook', 'sp', 'sp.custId = c.CustId')
       .leftJoin('InvoiceTypeMonth', 'itm', 'itm.InvoiceType = cs.InvoiceType')
-      .where('c.CustId = :id', { id: cid })
-      .groupBy('c.CustId');
+      .where('c.CustId = :id', { id: cid });
 
+    // Step 1 : Ambil Data Customer, Customer Services, dan InvoiceTypeMonth
     const getDataCustomerByID = await queryBuilder.getRawMany();
+
+    // Step 2 : Ambil SMS Phonebook
+    const fetchDataPhonebook = await this.dataSource.query(
+      `SELECT * FROM sms_phonebook sp WHERE sp.custId = '${cid}'`,
+    );
+    for (const fDP of fetchDataPhonebook) {
+      if (fDP.billing == 1 && fDP.technical == 0) {
+        getDataCustomerByID[0]['billing_phone'] = fDP.phone;
+      } else if (fDP.billing == 0 && fDP.technical == 1) {
+        getDataCustomerByID[0]['technical_phone'] = fDP.phone;
+      }
+    }
 
     return getDataCustomerByID;
   }
