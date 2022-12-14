@@ -1,49 +1,17 @@
 import { Injectable } from '@nestjs/common';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { CustomerRepository } from './customers.repository';
+import { GetCustomerFilterDto } from './dto/get-customer-filter.dto';
 import { Customer } from './customer.entity';
 
 @Injectable()
 export class CustomersService {
-  constructor(
-    @InjectRepository(Customer)
-    private readonly customerRepository: Repository<Customer>,
-  ) {}
+  constructor(private customerRepository: CustomerRepository) {}
 
-  async getCustomerDetail(customersId: string) {
-    let queryResult;
-    try {
-      queryResult = await this.customerRepository.findOneBy({
-        CustId: customersId,
-      });
-    } catch (error) {
-      queryResult = null;
-      console.log(error);
-    }
-
-    if (queryResult) {
-      const expArray: any = [];
-      expArray.push(this.transformCustomerQuery(queryResult));
-      return expArray;
-    }
-  }
-
-  private transformCustomerQuery(obj) {
-    return {
-      id: obj.CustId,
-      name: obj.CustName,
-      address: (obj.CustResAdd1 + ' ' + obj.CustResAdd2).trim(),
-      email: obj.CustEmail,
-      identityNumber: obj.CustIdNumber,
-      phoneNumber: obj.CustHP,
-      companyAddress: (obj.CustOfficeAdd1 + ' ' + obj.CustOfficeAdd2).trim(),
-      companyPhoneNumber: obj.CustOfficePhone,
-      billingName: obj.CustBillCP,
-      billingContact: obj.CustBillCPPhone,
-      billingEmail: obj.CustBillCPEmail,
-      technicalName: obj.CustTechCP,
-      technicalContact: obj.CustTechCPPhone,
-      technicalEmail: obj.CustTechCPEmail,
-    };
+  async getCustomerServices(
+    filterCustomerDto: GetCustomerFilterDto,
+  ): Promise<Customer[]> {
+    return await this.customerRepository.getCustomerRepository(
+      filterCustomerDto,
+    );
   }
 }

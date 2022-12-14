@@ -1,4 +1,10 @@
-import { BaseEntity, Entity, Column, PrimaryColumn } from 'typeorm';
+import {
+  BaseEntity,
+  Entity,
+  Column,
+  PrimaryColumn,
+  CreateDateColumn,
+} from 'typeorm';
 
 @Entity({ name: 'Customer', synchronize: false })
 export class Customer extends BaseEntity {
@@ -7,6 +13,27 @@ export class Customer extends BaseEntity {
 
   @Column()
   CustName: string;
+
+  @Column()
+  CustPass: string;
+
+  @Column()
+  BranchId: string;
+
+  @Column()
+  DisplayBranchId: string;
+
+  @Column()
+  FormId: string;
+
+  @Column()
+  CustGender: string;
+
+  @Column()
+  custPOB: string;
+
+  @Column({ type: 'date' })
+  custDOB: string;
 
   @Column()
   CustResAdd1: string;
@@ -24,6 +51,9 @@ export class Customer extends BaseEntity {
   CustHP: string;
 
   @Column()
+  CustResCity: string;
+
+  @Column()
   CustOfficeAdd1: string;
 
   @Column()
@@ -39,6 +69,18 @@ export class Customer extends BaseEntity {
   CustBillCPPhone: string;
 
   @Column()
+  CustOfficeCity: string;
+
+  @Column()
+  CustIdType: string;
+
+  @Column()
+  BusId: string;
+
+  @Column()
+  CustCompany: string;
+
+  @Column()
   CustBillCPEmail: string;
 
   @Column()
@@ -50,9 +92,21 @@ export class Customer extends BaseEntity {
   @Column()
   CustTechCPEmail: string;
 
-  static GetAllCustomers(customerId: string) {
-    return this.createQueryBuilder('Customer')
-      .where('Customer.CustId = :customerId', { customerId: customerId })
-      .getOne();
-  }
+  @Column()
+  SalesId: string;
+
+  @Column()
+  ManagerSalesId: string;
+
+  @CreateDateColumn()
+  InsertDateTime: Date;
+
+  @Column()
+  CustStatus: string;
+
+  @Column()
+  CustBillMethodLetter: boolean;
+
+  @Column()
+  CustBillMethodEmail: boolean;
 }
