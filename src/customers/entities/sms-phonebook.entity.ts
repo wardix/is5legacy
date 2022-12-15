@@ -2,13 +2,13 @@ import {
   BaseEntity,
   Entity,
   Column,
-  PrimaryColumn,
   CreateDateColumn,
+  PrimaryGeneratedColumn,
 } from 'typeorm';
 
 @Entity({ name: 'sms_phonebook', synchronize: false })
 export class SMSPhonebook extends BaseEntity {
-  @PrimaryColumn()
+  @PrimaryGeneratedColumn('increment')
   id: string;
 
   @Column()

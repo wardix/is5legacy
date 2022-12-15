@@ -14,6 +14,8 @@ import { SalesPromo } from './sales-promo/sales-promo.entity';
 import { ServicesModule } from './services/services.module';
 import { Customer } from './customers/entities/customer.entity';
 import { SMSPhonebook } from './customers/entities/sms-phonebook.entity';
+import { Subscription } from './customers/entities/subscriber.entity';
+import { NPWPCustomer } from './customers/entities/customer-npwp.entity';
 
 @Module({
   imports: [
@@ -29,7 +31,9 @@ import { SMSPhonebook } from './customers/entities/sms-phonebook.entity';
         Employee,
         Tts,
         Customer,
+        Subscription,
         SMSPhonebook,
+        NPWPCustomer,
         TtsPIC,
         TtsChange,
         Ttschange,
