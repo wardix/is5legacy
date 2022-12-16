@@ -16,6 +16,9 @@ import { ServicesModule } from './services/services.module';
 import { CustomerServices } from './customers/customer-services.entity';
 import { CustomerServiceTechnicalCustom } from './subscription/entities/customer-service-technical-custom.entity';
 import { SubscriptionModule } from './subscription/subscription.module';
+import { SMSPhonebook } from './customers/entities/sms-phonebook.entity';
+import { Subscription } from './customers/entities/subscriber.entity';
+import { NPWPCustomer } from './customers/entities/customer-npwp.entity';
 
 @Module({
   imports: [
@@ -32,6 +35,9 @@ import { SubscriptionModule } from './subscription/subscription.module';
         Tts,
         Customer,
         CustomerServices,
+        Subscription,
+        SMSPhonebook,
+        NPWPCustomer,
         TtsPIC,
         TtsChange,
         Ttschange,
