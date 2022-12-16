@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { Repository, DataSource } from 'typeorm';
 import { GetCustomerFilterDto } from './dto/get-customer-filter.dto';
 import { Customer } from './entities/customer.entity';
@@ -29,11 +29,11 @@ export class CustomerRepository extends Repository<Customer> {
           "c.CustDOB AS 'date_of_birth'",
           "c.CustBillCPEmail AS 'email_address'",
           "c.CustHP AS 'phone_number'",
-          "CONCAT(c.CustResAdd1, ', ', c.CustResAdd2, ', ', c.CustResCity) AS 'address'",
+          "CONCAT_WS(', ', c.CustResAdd1, c.CustResAdd2, c.CustResCity) AS 'address'",
           "c.CustIdType AS 'identity_type'",
           "c.CustIdNumber AS 'identity_number'",
           "c.CustCompany AS 'company_name'",
-          "CONCAT(c.CustOfficeAdd1, ', ', c.CustOfficeAdd2, ', ', c.CustOfficeCity) AS 'company_address'",
+          "CONCAT_WS(', ', c.CustOfficeAdd1, c.CustOfficeAdd2, c.CustOfficeCity) AS 'company_address'",
           "c.CustOfficePhone AS 'company_phone_number'",
           "c.CustBillCP AS 'billing_name'",
           "c.CustBillCPEmail AS 'billing_email'",
@@ -99,7 +99,7 @@ export class CustomerRepository extends Repository<Customer> {
       // Step 1 : Init CustID
       const CustID = await this.checkCustomerID();
       if (!CustID) {
-        throw new Error(
+        throw new BadRequestException(
           'Data pelanggan gagal ditambahkan. Customer ID Tidak Ditemukan, silahkan tambahkan customer ID di admin.',
         );
       }

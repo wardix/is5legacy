@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Body,
   Controller,
   Get,
@@ -29,9 +30,12 @@ export class CustomersController {
         await this.customersService.getCustomerServices(filterCustomerDto);
       return resultAllCustomers;
     } catch (error) {
-      return {
-        message: error.message,
-      };
+      throw new BadRequestException({
+        title: 'Failed',
+        data: {},
+        message:
+          'Proses ambil data pelanggan gagal, koneksi jaringan terputus.',
+      });
     }
   }
 
@@ -43,9 +47,12 @@ export class CustomersController {
         await this.customersService.saveDataCustomerService(createCustomerDto);
       return saveDataCustomers;
     } catch (error) {
-      return {
-        message: error.message,
-      };
+      throw new BadRequestException({
+        title: 'Failed',
+        data: {},
+        message:
+          'Proses simpan data pelanggan atau data layanan, koneksi jaringan terputus.',
+      });
     }
   }
 }
