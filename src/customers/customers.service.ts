@@ -13,8 +13,14 @@ export class CustomersService {
     );
   }
 
-  async saveDataCustomerService(createCustomerDto: CreateCustomerDto) {
+  async saveDataCustomerLogic(createCustomerDto: CreateCustomerDto) {
     return await this.customerRepository.saveCustomerRepository(
+      createCustomerDto,
+    );
+  }
+
+  async saveDataCustomerServLogic(createCustomerDto: CreateCustomerDto) {
+    return await this.customerRepository.saveCustomerServRepository(
       createCustomerDto,
     );
   }

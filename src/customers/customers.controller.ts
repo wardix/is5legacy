@@ -33,7 +33,7 @@ export class CustomersController {
       throw new InternalServerErrorException({
         title: 'Failed',
         message:
-          'Proses ambil data pelanggan gagal, koneksi jaringan terputus.',
+          'Proses ambil data pelanggan gagal, silahkan coba beberapa saat lagi.',
       });
     }
   }
@@ -43,13 +43,31 @@ export class CustomersController {
   async saveDataCustomer(@Body() createCustomerDto: CreateCustomerDto) {
     try {
       const saveDataCustomers =
-        await this.customersService.saveDataCustomerService(createCustomerDto);
+        await this.customersService.saveDataCustomerLogic(createCustomerDto);
       return saveDataCustomers;
     } catch (error) {
       throw new InternalServerErrorException({
         title: 'Failed',
         message:
-          'Proses simpan data pelanggan atau data layanan gagal, koneksi jaringan terputus.',
+          'Proses simpan data pelanggan gagal, silahkan coba beberapa saat lagi.',
+      });
+    }
+  }
+
+  @Post(':id/services')
+  @UsePipes(ValidationPipe)
+  async saveDataCustServices(@Body() createCustomerDto: CreateCustomerDto) {
+    try {
+      const saveDataCustomerServices =
+        await this.customersService.saveDataCustomerServLogic(
+          createCustomerDto,
+        );
+      return saveDataCustomerServices;
+    } catch (error) {
+      throw new InternalServerErrorException({
+        title: 'Failed',
+        message:
+          'Proses simpan data layanan gagal, silahkan coba beberapa saat lagi.',
       });
     }
   }
