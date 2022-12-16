@@ -234,7 +234,11 @@ export class CustomerRepository extends Repository<Customer> {
         throw new Error(`${err}`);
       }
 
-      return 'Berhasil menambahkan data pelanggan.';
+      return {
+        title: 'Success',
+        data: CustID,
+        message: 'Berhasil menambahkan data pelanggan.',
+      };
     } else if ((createCustomerDto.action = 'RegNewService')) {
       if (createCustomerDto.CustID) {
         const Services = new Subscription();
@@ -289,7 +293,10 @@ export class CustomerRepository extends Repository<Customer> {
           throw new Error(`${err}`);
         }
 
-        return 'Berhasil menambahkan data layanan pelanggan.';
+        return {
+          title: 'Success',
+          message: 'Berhasil menambahkan data layanan.',
+        };
       } else {
         throw new Error('Cust ID tidak ditemukan');
       }
