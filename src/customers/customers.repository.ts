@@ -47,9 +47,10 @@ export class CustomerRepository extends Repository<Customer> {
       throw new Error(`${error}`);
     }
 
-    // Step 2 : Ambil Data CustomerService dan InvoiceTypeMonth
-    try {
-      const queryBuilderTwo = await this.dataSource.query(`
+    if (resultObject !== undefined) {
+      // Step 2 : Ambil Data CustomerService dan InvoiceTypeMonth
+      try {
+        const queryBuilderTwo = await this.dataSource.query(`
       SELECT 
       cs.ServiceId 'package_code',
       cs.Subscription 'package_price',
@@ -58,29 +59,34 @@ export class CustomerRepository extends Repository<Customer> {
       LEFT JOIN InvoiceTypeMonth itm ON itm.InvoiceType = cs.InvoiceType 
       WHERE cs.CustId = '${cid}'
     `);
-      resultObject['list_of_services'] = queryBuilderTwo;
-    } catch (error) {
-      throw new Error(`${error}`);
-    }
+        resultObject['list_of_services'] = queryBuilderTwo;
+      } catch (error) {
+        throw new Error(`${error}`);
+      }
 
-    // Step 3 : Ambil SMS Phonebook
-    try {
-      const queryBuilderThree = await this.dataSource.query(
-        `SELECT sp.phone FROM sms_phonebook sp WHERE sp.custId = '${cid}' AND sp.name LIKE '%${resultObject['billing_name']}%'`,
+      // Step 3 : Ambil SMS Phonebook
+      try {
+        const queryBuilderThree = await this.dataSource.query(
+          `SELECT sp.phone FROM sms_phonebook sp WHERE sp.custId = '${cid}' AND sp.name LIKE '%${resultObject['billing_name']}%'`,
+        );
+        const queryBuilderFour = await this.dataSource.query(
+          `SELECT sp.phone FROM sms_phonebook sp WHERE sp.custId = '${cid}' AND sp.name LIKE '%${resultObject['technical_name']}%'`,
+        );
+        resultObject['billing_phone'] =
+          queryBuilderThree[0]?.phone !== undefined
+            ? queryBuilderThree[0].phone
+            : '';
+        resultObject['technical_phone'] =
+          queryBuilderFour[0]?.phone !== undefined
+            ? queryBuilderFour[0].phone
+            : '';
+      } catch (error) {
+        throw new Error(`${error}`);
+      }
+    } else {
+      throw new Error(
+        'Data pelanggan tidak ditemukan. Silahkan periksa kembali Customer ID anda.',
       );
-      const queryBuilderFour = await this.dataSource.query(
-        `SELECT sp.phone FROM sms_phonebook sp WHERE sp.custId = '${cid}' AND sp.name LIKE '%${resultObject['technical_name']}%'`,
-      );
-      resultObject['billing_phone'] =
-        queryBuilderThree[0]?.phone !== undefined
-          ? queryBuilderThree[0].phone
-          : '';
-      resultObject['technical_phone'] =
-        queryBuilderFour[0]?.phone !== undefined
-          ? queryBuilderFour[0].phone
-          : '';
-    } catch (error) {
-      throw new Error(`${error}`);
     }
 
     return resultObject;
