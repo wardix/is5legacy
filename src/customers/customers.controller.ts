@@ -3,6 +3,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  InternalServerErrorException,
   Post,
   UseGuards,
   UsePipes,
@@ -29,9 +30,11 @@ export class CustomersController {
         await this.customersService.getCustomerServices(filterCustomerDto);
       return resultAllCustomers;
     } catch (error) {
-      return {
-        message: error.message,
-      };
+      throw new InternalServerErrorException({
+        title: 'Failed',
+        message:
+          'Proses ambil data pelanggan gagal, koneksi jaringan terputus.',
+      });
     }
   }
 
@@ -43,9 +46,11 @@ export class CustomersController {
         await this.customersService.saveDataCustomerService(createCustomerDto);
       return saveDataCustomers;
     } catch (error) {
-      return {
-        message: error.message,
-      };
+      throw new InternalServerErrorException({
+        title: 'Failed',
+        message:
+          'Proses simpan data pelanggan atau data layanan gagal, koneksi jaringan terputus.',
+      });
     }
   }
 }
