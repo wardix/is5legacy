@@ -128,4 +128,12 @@ export class CreateCustomerDto {
   @IsNotEmpty()
   @IsBoolean()
   cetak_duluan: boolean;
+
+  @IsNotEmpty()
+  @IsString()
+  action: string;
+
+  @IsOptional()
+  @IsString()
+  CustID: string;
 }

@@ -87,146 +87,209 @@ export class CustomerRepository extends Repository<Customer> {
   }
 
   async saveCustomerRepository(createCustomerDto: CreateCustomerDto) {
-    // Step 1 : Init CustID
-    const CustID = await this.checkCustomerID();
-    if (!CustID) {
-      throw new Error(
-        'Data pelanggan gagal ditambahkan. Customer ID Tidak Ditemukan, silahkan tambahkan customer ID di admin.',
-      );
-    }
+    const queryRunner = this.dataSource.createQueryRunner();
 
-    // Step 2 : Init FormID
-    const FormID = await this.checkFormID();
+    if (createCustomerDto.action == 'RegNewCust') {
+      // Step 1 : Init CustID
+      const CustID = await this.checkCustomerID();
+      if (!CustID) {
+        throw new Error(
+          'Data pelanggan gagal ditambahkan. Customer ID Tidak Ditemukan, silahkan tambahkan customer ID di admin.',
+        );
+      }
 
-    // Step 3 : Assign Data Pelanggan ke Tabel Customer
-    const pelanggan = new Customer();
-    pelanggan.CustId = CustID;
-    pelanggan.BranchId = createCustomerDto.branch_id;
-    pelanggan.DisplayBranchId = createCustomerDto.display_branch_id;
-    pelanggan.FormId = FormID;
-    pelanggan.CustName = createCustomerDto.full_name;
-    pelanggan.CustGender = createCustomerDto.gender;
-    pelanggan.custPOB = createCustomerDto.place_of_birth;
-    pelanggan.custDOB = createCustomerDto.date_of_birth;
-    pelanggan.CustIdType = createCustomerDto.identity_type;
-    pelanggan.CustIdNumber = createCustomerDto.identity_number;
-    pelanggan.CustCompany = createCustomerDto.company_name;
-    pelanggan.CustBusName = createCustomerDto.company_name;
-    pelanggan.BusId = '090';
-    pelanggan.CustResAdd1 = createCustomerDto.address;
-    pelanggan.CustResPhone = createCustomerDto.phone_number;
-    pelanggan.CustOfficeAdd1 = createCustomerDto.company_address;
-    pelanggan.CustOfficePhone = createCustomerDto.company_phone_number;
-    pelanggan.CustBillingAdd = true;
-    pelanggan.CustHP = createCustomerDto.phone_number;
-    pelanggan.CustEmail = createCustomerDto.email_address;
-    pelanggan.CustTechCP = createCustomerDto.technical_name;
-    pelanggan.CustTechCPPhone = createCustomerDto.technical_phone;
-    pelanggan.CustTechCPEmail = createCustomerDto.technical_email;
-    pelanggan.CustBillCP = createCustomerDto.billing_name;
-    pelanggan.CustBillMethodLetter = false;
-    pelanggan.CustBillMethodEmail = true;
-    pelanggan.CustBillCPPhone = createCustomerDto.billing_phone;
-    pelanggan.CustBillCPEmail = createCustomerDto.billing_email;
-    pelanggan.CustRegDate = new Date(this.getDateNow());
-    pelanggan.CustNotes = createCustomerDto.extend_note;
-    pelanggan.EmpApproval = createCustomerDto.approval_emp_id;
-    pelanggan.CustStatus = 'AC';
-    pelanggan.SalesId = createCustomerDto.sales_id;
-    pelanggan.InsertDateTime = new Date(this.getDateNow());
-    pelanggan.UpdateDateTime = new Date(this.getDateNow());
-    pelanggan.TaxType = createCustomerDto.tax_type;
-    pelanggan.CetakDuluan = createCustomerDto.cetak_duluan;
-    pelanggan.ManagerSalesId = createCustomerDto.manager_sales_id;
+      // Step 2 : Init FormID
+      const FormID = await this.checkFormID();
 
-    // Step 4 : Assign Data Layanan ke Tabel Customer Service
-    const Services = new Subscription();
-    Services.CustId = CustID;
-    Services.ServiceId = createCustomerDto.package_code;
-    Services.ServiceType = createCustomerDto.package_name;
-    Services.EmpId = createCustomerDto.approval_emp_id;
-    Services.PayId = '006';
-    Services.CustStatus = 'BL';
-    Services.CustRegDate = new Date(this.getDateNow());
-    Services.CustActivationDate = new Date(this.getDateNow());
-    Services.CustUpdateDate = new Date(this.getDateNow());
-    Services.CustBlockDate = new Date(this.getDateNow());
-    Services.CustBlockFrom = true;
-    Services.CustAccName = '';
-    Services.Opsi = true;
-    Services.StartTrial = new Date(this.getDateNow());
-    Services.EndTrial = new Date(this.getDateNow());
-    Services.StatusPerangkat = 'PM';
-    Services.Gabung = false;
-    Services.Tampil = true;
-    Services.TglHarga = new Date(this.getDateNow());
-    Services.Subscription = createCustomerDto.package_price;
-    const InvoiceType = await this.dataSource.query(`
+      // Step 3 : Assign Data Pelanggan ke Tabel Customer
+      const pelanggan = new Customer();
+      pelanggan.CustId = CustID;
+      pelanggan.BranchId = createCustomerDto.branch_id;
+      pelanggan.DisplayBranchId = createCustomerDto.display_branch_id;
+      pelanggan.FormId = FormID;
+      pelanggan.CustName = createCustomerDto.full_name;
+      pelanggan.CustGender = createCustomerDto.gender;
+      pelanggan.custPOB = createCustomerDto.place_of_birth;
+      pelanggan.custDOB = createCustomerDto.date_of_birth;
+      pelanggan.CustIdType = createCustomerDto.identity_type;
+      pelanggan.CustIdNumber = createCustomerDto.identity_number;
+      pelanggan.CustCompany = createCustomerDto.company_name;
+      pelanggan.CustBusName = createCustomerDto.company_name;
+      pelanggan.BusId = '090';
+      pelanggan.CustResAdd1 = createCustomerDto.address;
+      pelanggan.CustResPhone = createCustomerDto.phone_number;
+      pelanggan.CustOfficeAdd1 = createCustomerDto.company_address;
+      pelanggan.CustOfficePhone = createCustomerDto.company_phone_number;
+      pelanggan.CustBillingAdd = true;
+      pelanggan.CustHP = createCustomerDto.phone_number;
+      pelanggan.CustEmail = createCustomerDto.email_address;
+      pelanggan.CustTechCP = createCustomerDto.technical_name;
+      pelanggan.CustTechCPPhone = createCustomerDto.technical_phone;
+      pelanggan.CustTechCPEmail = createCustomerDto.technical_email;
+      pelanggan.CustBillCP = createCustomerDto.billing_name;
+      pelanggan.CustBillMethodLetter = false;
+      pelanggan.CustBillMethodEmail = true;
+      pelanggan.CustBillCPPhone = createCustomerDto.billing_phone;
+      pelanggan.CustBillCPEmail = createCustomerDto.billing_email;
+      pelanggan.CustRegDate = new Date(this.getDateNow());
+      pelanggan.CustNotes = createCustomerDto.extend_note;
+      pelanggan.EmpApproval = createCustomerDto.approval_emp_id;
+      pelanggan.CustStatus = 'AC';
+      pelanggan.SalesId = createCustomerDto.sales_id;
+      pelanggan.InsertDateTime = new Date(this.getDateNow());
+      pelanggan.UpdateDateTime = new Date(this.getDateNow());
+      pelanggan.TaxType = createCustomerDto.tax_type;
+      pelanggan.CetakDuluan = createCustomerDto.cetak_duluan;
+      pelanggan.ManagerSalesId = createCustomerDto.manager_sales_id;
+
+      // Step 4 : Assign Data Layanan ke Tabel Customer Service
+      const Services = new Subscription();
+      Services.CustId = CustID;
+      Services.ServiceId = createCustomerDto.package_code;
+      Services.ServiceType = createCustomerDto.package_name;
+      Services.EmpId = createCustomerDto.approval_emp_id;
+      Services.PayId = '006';
+      Services.CustStatus = 'BL';
+      Services.CustRegDate = new Date(this.getDateNow());
+      Services.CustActivationDate = new Date(this.getDateNow());
+      Services.CustUpdateDate = new Date(this.getDateNow());
+      Services.CustBlockDate = new Date(this.getDateNow());
+      Services.CustBlockFrom = true;
+      Services.CustAccName = '';
+      Services.Opsi = true;
+      Services.StartTrial = new Date(this.getDateNow());
+      Services.EndTrial = new Date(this.getDateNow());
+      Services.StatusPerangkat = 'PM';
+      Services.Gabung = false;
+      Services.Tampil = true;
+      Services.TglHarga = new Date(this.getDateNow());
+      Services.Subscription = createCustomerDto.package_price;
+      const InvoiceType = await this.dataSource.query(`
       SELECT itm.InvoiceType FROM InvoiceTypeMonth itm
       WHERE itm.Month = '${createCustomerDto.package_top}'
     `);
-    Services.InvoiceType = InvoiceType[0].InvoiceType;
-    Services.InvoicePeriod = `${
-      new Date(this.getDateNow()).getMonth().toString() +
-      new Date(this.getDateNow()).getFullYear().toString().slice(-2)
-    }`;
-    Services.InvoiceDate1 = true;
-    Services.AddEmailCharge = false;
-    Services.AccessLog = true;
-    Services.Description = createCustomerDto.extend_note;
-    Services.installation_address = createCustomerDto.address;
-    Services.ContractUntil = new Date(this.getDateNow());
-    Services.Type = 'Rumah';
-    Services.promo_id = createCustomerDto.promo_id;
-    Services.BlockTypeId = true;
-    Services.BlockTypeDate = '25';
-    Services.CustBlockFromMenu = 'edit_subs';
+      Services.InvoiceType = InvoiceType[0].InvoiceType;
+      Services.InvoicePeriod = `${
+        new Date(this.getDateNow()).getMonth().toString() +
+        new Date(this.getDateNow()).getFullYear().toString().slice(-2)
+      }`;
+      Services.InvoiceDate1 = true;
+      Services.AddEmailCharge = false;
+      Services.AccessLog = true;
+      Services.Description = createCustomerDto.extend_note;
+      Services.installation_address = createCustomerDto.address;
+      Services.ContractUntil = new Date(this.getDateNow());
+      Services.Type = 'Rumah';
+      Services.promo_id = createCustomerDto.promo_id;
+      Services.BlockTypeId = true;
+      Services.BlockTypeDate = '25';
+      Services.CustBlockFromMenu = 'edit_subs';
 
-    // Step 5 : Assign Data NPWP ke Tabel NPWP
-    const npwpCust = new NPWPCustomer();
-    npwpCust.Name = createCustomerDto.full_name;
-    npwpCust.Address = createCustomerDto.address;
-    npwpCust.NPWP = createCustomerDto.npwp_number;
-    npwpCust.CustId = CustID;
-    npwpCust.Selected = true;
+      // Step 5 : Assign Data NPWP ke Tabel NPWP
+      const npwpCust = new NPWPCustomer();
+      npwpCust.Name = createCustomerDto.full_name;
+      npwpCust.Address = createCustomerDto.address;
+      npwpCust.NPWP = createCustomerDto.npwp_number;
+      npwpCust.CustId = CustID;
+      npwpCust.Selected = true;
 
-    // Step 6 : Assign Data SMS Phonebook ke SMS Phonebook
-    const smsPhoneBook1 = new SMSPhonebook();
-    smsPhoneBook1.phone = createCustomerDto.billing_phone;
-    smsPhoneBook1.name = createCustomerDto.billing_name;
-    smsPhoneBook1.custId = CustID;
-    smsPhoneBook1.billing = true;
-    smsPhoneBook1.technical = false;
-    smsPhoneBook1.insertTime = new Date(this.getDateNow());
-    smsPhoneBook1.insertBy = createCustomerDto.approval_emp_id;
+      // Step 6 : Assign Data SMS Phonebook ke SMS Phonebook
+      const smsPhoneBook1 = new SMSPhonebook();
+      smsPhoneBook1.phone = createCustomerDto.billing_phone;
+      smsPhoneBook1.name = createCustomerDto.billing_name;
+      smsPhoneBook1.custId = CustID;
+      smsPhoneBook1.billing = true;
+      smsPhoneBook1.technical = false;
+      smsPhoneBook1.insertTime = new Date(this.getDateNow());
+      smsPhoneBook1.insertBy = createCustomerDto.approval_emp_id;
 
-    const smsPhoneBook2 = new SMSPhonebook();
-    smsPhoneBook2.phone = createCustomerDto.technical_phone;
-    smsPhoneBook2.name = createCustomerDto.technical_name;
-    smsPhoneBook2.custId = CustID;
-    smsPhoneBook2.billing = false;
-    smsPhoneBook2.technical = true;
-    smsPhoneBook2.insertTime = new Date(this.getDateNow());
-    smsPhoneBook2.insertBy = createCustomerDto.approval_emp_id;
+      const smsPhoneBook2 = new SMSPhonebook();
+      smsPhoneBook2.phone = createCustomerDto.technical_phone;
+      smsPhoneBook2.name = createCustomerDto.technical_name;
+      smsPhoneBook2.custId = CustID;
+      smsPhoneBook2.billing = false;
+      smsPhoneBook2.technical = true;
+      smsPhoneBook2.insertTime = new Date(this.getDateNow());
+      smsPhoneBook2.insertBy = createCustomerDto.approval_emp_id;
 
-    const queryRunner = this.dataSource.createQueryRunner();
-    await queryRunner.connect();
-    await queryRunner.startTransaction();
-    try {
-      await queryRunner.manager.save(pelanggan);
-      await queryRunner.manager.save(smsPhoneBook1);
-      if (smsPhoneBook1.phone != smsPhoneBook2.phone) {
-        await queryRunner.manager.save(smsPhoneBook2);
+      await queryRunner.connect();
+      await queryRunner.startTransaction();
+      try {
+        await queryRunner.manager.save(pelanggan);
+        await queryRunner.manager.save(smsPhoneBook1);
+        if (smsPhoneBook1.phone != smsPhoneBook2.phone) {
+          await queryRunner.manager.save(smsPhoneBook2);
+        }
+        await queryRunner.manager.save(Services);
+        await queryRunner.manager.save(npwpCust);
+        await queryRunner.commitTransaction();
+      } catch (err) {
+        await queryRunner.rollbackTransaction();
+        throw new Error(`${err}`);
       }
-      await queryRunner.manager.save(Services);
-      await queryRunner.manager.save(npwpCust);
-      await queryRunner.commitTransaction();
-    } catch (err) {
-      await queryRunner.rollbackTransaction();
-      throw new Error(`${err}`);
-    }
 
-    return 'Berhasil menambahkan data pelanggan.';
+      return 'Berhasil menambahkan data pelanggan.';
+    } else if ((createCustomerDto.action = 'RegNewService')) {
+      if (createCustomerDto.CustID) {
+        const Services = new Subscription();
+        Services.CustId = createCustomerDto.CustID;
+        Services.ServiceId = createCustomerDto.package_code;
+        Services.ServiceType = createCustomerDto.package_name;
+        Services.EmpId = createCustomerDto.approval_emp_id;
+        Services.PayId = '006';
+        Services.CustStatus = 'BL';
+        Services.CustRegDate = new Date(this.getDateNow());
+        Services.CustActivationDate = new Date(this.getDateNow());
+        Services.CustUpdateDate = new Date(this.getDateNow());
+        Services.CustBlockDate = new Date(this.getDateNow());
+        Services.CustBlockFrom = true;
+        Services.CustAccName = '';
+        Services.Opsi = true;
+        Services.StartTrial = new Date(this.getDateNow());
+        Services.EndTrial = new Date(this.getDateNow());
+        Services.StatusPerangkat = 'PM';
+        Services.Gabung = false;
+        Services.Tampil = true;
+        Services.TglHarga = new Date(this.getDateNow());
+        Services.Subscription = createCustomerDto.package_price;
+        const InvoiceType = await this.dataSource.query(`
+      SELECT itm.InvoiceType FROM InvoiceTypeMonth itm
+      WHERE itm.Month = '${createCustomerDto.package_top}'
+    `);
+        Services.InvoiceType = InvoiceType[0].InvoiceType;
+        Services.InvoicePeriod = `${
+          new Date(this.getDateNow()).getMonth().toString() +
+          new Date(this.getDateNow()).getFullYear().toString().slice(-2)
+        }`;
+        Services.InvoiceDate1 = true;
+        Services.AddEmailCharge = false;
+        Services.AccessLog = true;
+        Services.Description = createCustomerDto.extend_note;
+        Services.installation_address = createCustomerDto.address;
+        Services.ContractUntil = new Date(this.getDateNow());
+        Services.Type = 'Rumah';
+        Services.promo_id = createCustomerDto.promo_id;
+        Services.BlockTypeId = true;
+        Services.BlockTypeDate = '25';
+        Services.CustBlockFromMenu = 'edit_subs';
+
+        await queryRunner.connect();
+        await queryRunner.startTransaction();
+        try {
+          await queryRunner.manager.save(Services);
+          await queryRunner.commitTransaction();
+        } catch (err) {
+          await queryRunner.rollbackTransaction();
+          throw new Error(`${err}`);
+        }
+
+        return 'Berhasil menambahkan data layanan pelanggan.';
+      } else {
+        throw new Error('Cust ID tidak ditemukan');
+      }
+    } else {
+      throw new Error('Invalid Action');
+    }
   }
 
   async checkCustomerID() {
