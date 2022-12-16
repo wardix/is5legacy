@@ -12,12 +12,6 @@ export class Customer extends BaseEntity {
   CustId: string;
 
   @Column()
-  CustName: string;
-
-  @Column()
-  CustPass: string;
-
-  @Column()
   BranchId: string;
 
   @Column()
@@ -25,6 +19,9 @@ export class Customer extends BaseEntity {
 
   @Column()
   FormId: string;
+
+  @Column()
+  CustName: string;
 
   @Column()
   CustGender: string;
@@ -36,22 +33,31 @@ export class Customer extends BaseEntity {
   custDOB: string;
 
   @Column()
+  CustIdType: string;
+
+  @Column()
+  CustIdNumber: string;
+
+  @Column()
+  CustCompany: string;
+
+  @Column()
+  CustBusName: string;
+
+  @Column()
+  BusId: string;
+
+  @Column()
   CustResAdd1: string;
 
   @Column()
   CustResAdd2: string;
 
   @Column()
-  CustEmail: string;
-
-  @Column()
-  CustIdNumber: string;
-
-  @Column()
-  CustHP: string;
-
-  @Column()
   CustResCity: string;
+
+  @Column()
+  CustResPhone: string;
 
   @Column()
   CustOfficeAdd1: string;
@@ -60,28 +66,19 @@ export class Customer extends BaseEntity {
   CustOfficeAdd2: string;
 
   @Column()
-  CustOfficePhone: string;
-
-  @Column()
-  CustBillCP: string;
-
-  @Column()
-  CustBillCPPhone: string;
-
-  @Column()
   CustOfficeCity: string;
 
   @Column()
-  CustIdType: string;
+  CustOfficePhone: string;
 
   @Column()
-  BusId: string;
+  CustBillingAdd: boolean;
 
   @Column()
-  CustCompany: string;
+  CustHP: string;
 
   @Column()
-  CustBillCPEmail: string;
+  CustEmail: string;
 
   @Column()
   CustTechCP: string;
@@ -93,20 +90,47 @@ export class Customer extends BaseEntity {
   CustTechCPEmail: string;
 
   @Column()
-  SalesId: string;
-
-  @Column()
-  ManagerSalesId: string;
-
-  @CreateDateColumn()
-  InsertDateTime: Date;
-
-  @Column()
-  CustStatus: string;
+  CustBillCP: string;
 
   @Column()
   CustBillMethodLetter: boolean;
 
   @Column()
   CustBillMethodEmail: boolean;
+
+  @Column()
+  CustBillCPPhone: string;
+
+  @Column()
+  CustBillCPEmail: string;
+
+  @Column()
+  CustRegDate: Date;
+
+  @Column()
+  CustNotes: string;
+
+  @Column()
+  EmpApproval: string;
+
+  @Column()
+  CustStatus: string;
+
+  @Column()
+  SalesId: string;
+
+  @Column()
+  InsertDateTime: Date;
+
+  @Column()
+  UpdateDateTime: Date;
+
+  @Column()
+  TaxType: boolean;
+
+  @Column()
+  CetakDuluan: boolean;
+
+  @Column()
+  ManagerSalesId: string;
 }
