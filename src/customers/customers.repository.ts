@@ -39,6 +39,8 @@ export class CustomerRepository extends Repository<Customer> {
           "c.CustBillCPEmail AS 'billing_email'",
           "c.CustTechCP AS 'technical_name'",
           "c.CustTechCPEmail AS 'technical_email'",
+          "c.SalesId AS 'sales_id'",
+          "c.ManagerSalesId AS 'manager_sales_id'",
         ])
         .where('c.CustId = :id', { id: cid });
       const getDataCustomerByID = await queryBuilderOne.getRawMany();
@@ -80,6 +82,17 @@ export class CustomerRepository extends Repository<Customer> {
           queryBuilderFour[0]?.phone !== undefined
             ? queryBuilderFour[0].phone
             : '';
+      } catch (error) {
+        throw new Error(`${error}`);
+      }
+
+      // Step 4 : Ambil NPWP Number
+      try {
+        const queryBuilderFive = await this.dataSource.query(`
+          SELECT nc.NPWP FROM NPWP_Customer nc
+          WHERE nc.CustId = '${cid}' AND nc.Selected = 1
+        `);
+        resultObject['npwp_number'] = queryBuilderFive[0].NPWP;
       } catch (error) {
         throw new Error(`${error}`);
       }
