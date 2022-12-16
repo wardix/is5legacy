@@ -41,9 +41,7 @@ export class CustomersController {
     try {
       const saveDataCustomers =
         await this.customersService.saveDataCustomerService(createCustomerDto);
-      return {
-        message: saveDataCustomers,
-      };
+      return saveDataCustomers;
     } catch (error) {
       return {
         message: error.message,
