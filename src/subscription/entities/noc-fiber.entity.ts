@@ -1,13 +1,13 @@
-import { BaseEntity, Column, Entity, PrimaryColumn } from "typeorm";
+import { BaseEntity, Column, Entity, PrimaryColumn } from 'typeorm';
 
 @Entity({ name: 'noc_fiber', synchronize: false })
 export class NOCFiber extends BaseEntity {
-    @PrimaryColumn()
-    id: number
+  @PrimaryColumn()
+  id: number;
 
-    @Column()
-    branchId: string
+  @Column()
+  branchId: string;
 
-    @Column()
-    vendorId: string
+  @Column()
+  vendorId: string;
 }
