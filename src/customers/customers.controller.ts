@@ -1,27 +1,74 @@
 import {
+  Body,
   Controller,
   Get,
-  HttpException,
-  HttpStatus,
-  Param,
+  HttpCode,
+  InternalServerErrorException,
+  Post,
   UseGuards,
+  UsePipes,
+  ValidationPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CustomersService } from './customers.service';
+import { Query } from '@nestjs/common';
+import { GetCustomerFilterDto } from './dto/get-customer-filter.dto';
+import { CreateCustomerDto } from './dto/create-customer.dto';
 
 @UseGuards(AuthGuard('api-key'))
 @Controller('customers')
 export class CustomersController {
   constructor(private readonly customersService: CustomersService) {}
 
-  @Get(':id')
-  getCustomerDetail(@Param('id') id: any) {
-    const customer = this.customersService.getCustomerDetail(id);
-    return customer;
+  @Get()
+  @HttpCode(200)
+  async getCustomerDetail(
+    @Query(ValidationPipe) filterCustomerDto: GetCustomerFilterDto,
+  ) {
+    try {
+      const resultAllCustomers =
+        await this.customersService.getCustomerServices(filterCustomerDto);
+      return resultAllCustomers;
+    } catch (error) {
+      throw new InternalServerErrorException({
+        title: 'Failed',
+        message:
+          'Proses ambil data pelanggan gagal, silahkan coba beberapa saat lagi.',
+      });
+    }
   }
 
-  @Get('/rrr')
-  async rrr() {
-    throw new HttpException('Forbidden', HttpStatus.FORBIDDEN);
+  @Post()
+  @UsePipes(ValidationPipe)
+  async saveDataCustomer(@Body() createCustomerDto: CreateCustomerDto) {
+    try {
+      const saveDataCustomers =
+        await this.customersService.saveDataCustomerLogic(createCustomerDto);
+      return saveDataCustomers;
+    } catch (error) {
+      throw new InternalServerErrorException({
+        title: 'Failed',
+        message:
+          'Proses simpan data pelanggan gagal, silahkan coba beberapa saat lagi.',
+      });
+    }
+  }
+
+  @Post(':id/services')
+  @UsePipes(ValidationPipe)
+  async saveDataCustServices(@Body() createCustomerDto: CreateCustomerDto) {
+    try {
+      const saveDataCustomerServices =
+        await this.customersService.saveDataCustomerServLogic(
+          createCustomerDto,
+        );
+      return saveDataCustomerServices;
+    } catch (error) {
+      throw new InternalServerErrorException({
+        title: 'Failed',
+        message:
+          'Proses simpan data layanan gagal, silahkan coba beberapa saat lagi.',
+      });
+    }
   }
 }
