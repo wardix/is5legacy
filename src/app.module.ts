@@ -18,6 +18,7 @@ import { Customer } from './customers/entities/customer.entity';
 import { SMSPhonebook } from './customers/entities/sms-phonebook.entity';
 import { Subscription } from './customers/entities/subscriber.entity';
 import { NPWPCustomer } from './customers/entities/customer-npwp.entity';
+import { Services } from './services/entities/service.entity';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { NPWPCustomer } from './customers/entities/customer-npwp.entity';
         NOCFiber,
         CustomerServiceTechnicalCustom,
         SalesPromo,
+        Services,
       ],
       synchronize: true,
     }),
