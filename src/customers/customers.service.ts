@@ -7,10 +7,8 @@ import { CreateCustomerDto } from './dto/create-customer.dto';
 export class CustomersService {
   constructor(private customerRepository: CustomerRepository) {}
 
-  async getCustomerServices(filterCustomerDto: GetCustomerFilterDto) {
-    return await this.customerRepository.getCustomerRepository(
-      filterCustomerDto,
-    );
+  async getCustomerServices(customer_id) {
+    return await this.customerRepository.getCustomerRepository(customer_id);
   }
 
   async saveDataCustomerLogic(createCustomerDto: CreateCustomerDto) {
