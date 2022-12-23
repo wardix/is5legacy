@@ -1,7 +1,13 @@
-import { Controller, Get, UseInterceptors, UseGuards, Query, UsePipes, ValidationPipe, Body } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  UseInterceptors,
+  UseGuards,
+  Query,
+  ValidationPipe,
+} from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
-import { GetCustomerCIDDto } from './dto/get-customer-cid.dto';
-
+import { GetFoLinkDto } from './dto/get-fo-link.dto';
 import { SubscriptionInterceptor } from './subscription.interceptor';
 import { SubscriptionService } from './subscription.service';
 
@@ -10,10 +16,12 @@ import { SubscriptionService } from './subscription.service';
 export class SubscriptionController {
   constructor(private readonly subscriptionService: SubscriptionService) {}
 
-  @Get('get-customer-cid')
+  @Get('fo-links')
   @UseInterceptors(SubscriptionInterceptor)
-  async getCustomerCID(@Query(new ValidationPipe({ transform: true })) getCustomerCIDDto: GetCustomerCIDDto): Promise<any> {
-    return await this.subscriptionService.getCustomerCID(getCustomerCIDDto)
+  async getFoLinks(
+    @Query(new ValidationPipe({ transform: true }))
+    getFoLinkDto: GetFoLinkDto,
+  ): Promise<any> {
+    return this.subscriptionService.getFoLinks(getFoLinkDto);
   }
-
 }
