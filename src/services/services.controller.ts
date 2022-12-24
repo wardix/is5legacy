@@ -9,9 +9,12 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { GetServiceFilterDto } from './dto/get-service-filter.dto';
 import { ServicesService } from './services.service';
+import { UseInterceptors } from '@nestjs/common';
+import { ErrorsInterceptor } from 'src/interceptors/errors.interceptor';
 
 @UseGuards(AuthGuard('api-key'))
 @Controller('service')
+@UseInterceptors(ErrorsInterceptor)
 export class ServicesController {
   constructor(private servicesService: ServicesService) {}
 
@@ -21,14 +24,9 @@ export class ServicesController {
     @Query(new ValidationPipe({ transform: true }))
     filterServiceDto: GetServiceFilterDto,
   ) {
-    try {
-      const resultAllServices =
-        await this.servicesService.getAllServicesService(filterServiceDto);
-      return resultAllServices;
-    } catch (error) {
-      return {
-        message: error.message,
-      };
-    }
+    const resultAllServices = await this.servicesService.getAllServicesService(
+      filterServiceDto,
+    );
+    return resultAllServices;
   }
 }
