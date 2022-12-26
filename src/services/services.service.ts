@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { GetServiceFilterDto } from './dto/get-service-filter.dto';
 import { Services } from './entities/service.entity';
 
