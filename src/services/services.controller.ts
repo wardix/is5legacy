@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  InternalServerErrorException,
   Query,
   UseGuards,
   ValidationPipe,
@@ -9,12 +10,9 @@ import {
 import { AuthGuard } from '@nestjs/passport';
 import { GetServiceFilterDto } from './dto/get-service-filter.dto';
 import { ServicesService } from './services.service';
-import { UseInterceptors } from '@nestjs/common';
-import { ErrorsInterceptor } from 'src/interceptors/errors.interceptor';
 
 @UseGuards(AuthGuard('api-key'))
-@Controller('service')
-@UseInterceptors(ErrorsInterceptor)
+@Controller('services')
 export class ServicesController {
   constructor(private servicesService: ServicesService) {}
 
@@ -24,9 +22,17 @@ export class ServicesController {
     @Query(new ValidationPipe({ transform: true }))
     filterServiceDto: GetServiceFilterDto,
   ) {
-    const resultAllServices = await this.servicesService.getAllServicesService(
-      filterServiceDto,
-    );
-    return resultAllServices;
+    try {
+      const resultAllServices =
+        await this.servicesService.getAllServicesService(filterServiceDto);
+      return {
+        data: resultAllServices,
+      };
+    } catch (error) {
+      throw new InternalServerErrorException({
+        title: 'Internal Server Error',
+        message: 'Failed to load resource. please try again later',
+      });
+    }
   }
 }

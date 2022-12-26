@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  InternalServerErrorException,
   Query,
   UseGuards,
   ValidationPipe,
@@ -11,7 +12,7 @@ import { SalesPromoService } from './sales-promo.service';
 import { AuthGuard } from '@nestjs/passport';
 
 @UseGuards(AuthGuard('api-key'))
-@Controller('promo')
+@Controller('promos')
 export class SalesPromoController {
   constructor(private salesPromoService: SalesPromoService) {}
 
@@ -24,12 +25,14 @@ export class SalesPromoController {
       const resultAllPromo = await this.salesPromoService.getAllPromoService(
         filterPromoDto,
       );
-
-      return resultAllPromo;
-    } catch (error) {
       return {
-        message: error.message,
+        data: resultAllPromo,
       };
+    } catch (error) {
+      throw new InternalServerErrorException({
+        title: 'Internal Server Error',
+        message: 'Failed to load resource. please try again later',
+      });
     }
   }
 }
