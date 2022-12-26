@@ -96,12 +96,12 @@ export class CustomersController {
     await queryRunner.startTransaction();
 
     try {
-      const saveNewCustomers =
+      const saveNewCustomerServices =
         await this.customersService.saveDataCustomerServLogic(
           createNewServiceCustomersDto,
           customer_id,
         );
-      await queryRunner.manager.save(saveNewCustomers.data_layanan);
+      await queryRunner.manager.save(saveNewCustomerServices.data_layanan);
       await queryRunner.commitTransaction();
 
       return {
