@@ -30,7 +30,8 @@ export class CustomersController {
       };
     } catch (error) {
       throw new InternalServerErrorException({
-        message: error.message,
+        title: 'Internal Server Error',
+        message: 'Failed to load resource. please try again later',
       });
     }
   }

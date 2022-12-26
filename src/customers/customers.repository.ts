@@ -14,7 +14,7 @@ export class CustomerRepository extends Repository<Customer> {
   }
 
   async getCustomerRepository(cid) {
-    let resultObject = null;
+    let resultObject = {};
 
     // Step 1 : Ambil Data Customer
     try {
@@ -101,9 +101,7 @@ export class CustomerRepository extends Repository<Customer> {
         resultObject['npwp_number'] = null;
       }
     } else {
-      throw new Error(
-        'Data pelanggan tidak ditemukan. Silahkan periksa kembali Customer ID anda.',
-      );
+      resultObject = {};
     }
 
     return resultObject;
