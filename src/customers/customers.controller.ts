@@ -90,16 +90,26 @@ export class CustomersController {
     @Param('customer_id') customer_id,
     @Body() createNewServiceCustomersDto: CreateNewServiceCustomersDto,
   ) {
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     try {
-      await this.customersService.saveDataCustomerServLogic(
-        createNewServiceCustomersDto,
-        customer_id,
-      );
+      const saveNewCustomers =
+        await this.customersService.saveDataCustomerServLogic(
+          createNewServiceCustomersDto,
+          customer_id,
+        );
+      await queryRunner.manager.save(saveNewCustomers.data_layanan);
+      await queryRunner.commitTransaction();
+
       return {
         title: 'Success',
         message: 'Success to save resource',
       };
     } catch (error) {
+      await queryRunner.rollbackTransaction();
       throw new ConflictException({
         title: 'Conflict',
         message: 'Failed to save resource. please try again later',

@@ -251,7 +251,7 @@ export class CustomerRepository extends Repository<Customer> {
     cid,
   ) {
     // Step 1 : Cek Data Pelanggan
-    let dataPelanggan = null;
+    let dataPelanggan = [];
     dataPelanggan = await this.createQueryBuilder('c')
       .where('c.CustId = :id', {
         id: cid,
@@ -301,8 +301,6 @@ export class CustomerRepository extends Repository<Customer> {
       Services.BlockTypeId = true;
       Services.BlockTypeDate = '25';
       Services.CustBlockFromMenu = 'edit_subs';
-
-      await this.save(Services);
 
       return {
         data_layanan: Services,
