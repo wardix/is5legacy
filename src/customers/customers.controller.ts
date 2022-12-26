@@ -4,6 +4,7 @@ import {
   Get,
   HttpCode,
   InternalServerErrorException,
+  Param,
   Post,
   UseGuards,
   UsePipes,
@@ -11,8 +12,6 @@ import {
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CustomersService } from './customers.service';
-import { Query } from '@nestjs/common';
-import { GetCustomerFilterDto } from './dto/get-customer-filter.dto';
 import { CreateCustomerDto } from './dto/create-customer.dto';
 
 @UseGuards(AuthGuard('api-key'))
@@ -20,20 +19,19 @@ import { CreateCustomerDto } from './dto/create-customer.dto';
 export class CustomersController {
   constructor(private readonly customersService: CustomersService) {}
 
-  @Get()
+  @Get(':customer_id')
   @HttpCode(200)
-  async getCustomerDetail(
-    @Query(ValidationPipe) filterCustomerDto: GetCustomerFilterDto,
-  ) {
+  async getCustomerDetail(@Param('customer_id') customer_id) {
     try {
       const resultAllCustomers =
-        await this.customersService.getCustomerServices(filterCustomerDto);
-      return resultAllCustomers;
+        await this.customersService.getCustomerServices(customer_id);
+      return {
+        data: resultAllCustomers,
+      };
     } catch (error) {
       throw new InternalServerErrorException({
-        title: 'Failed',
-        message:
-          'Proses ambil data pelanggan gagal, silahkan coba beberapa saat lagi.',
+        title: 'Internal Server Error',
+        message: 'Failed to load resource. please try again later',
       });
     }
   }

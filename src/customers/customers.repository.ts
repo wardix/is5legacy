@@ -13,8 +13,7 @@ export class CustomerRepository extends Repository<Customer> {
     super(Customer, dataSource.createEntityManager());
   }
 
-  async getCustomerRepository(filterCustomerDto: GetCustomerFilterDto) {
-    const { cid } = filterCustomerDto;
+  async getCustomerRepository(cid) {
     let resultObject = {};
 
     // Step 1 : Ambil Data Customer
@@ -46,27 +45,30 @@ export class CustomerRepository extends Repository<Customer> {
       const getDataCustomerByID = await queryBuilderOne.getRawMany();
       resultObject = getDataCustomerByID[0];
     } catch (error) {
-      throw new Error(`${error}`);
+      resultObject = null;
     }
 
-    if (resultObject !== undefined) {
+    if (resultObject != null) {
       // Step 2 : Ambil Data CustomerService dan InvoiceTypeMonth
+      resultObject['list_of_services'] = null;
       try {
         const queryBuilderTwo = await this.dataSource.query(`
-      SELECT 
-      cs.ServiceId 'package_code',
-      cs.Subscription 'package_price',
-      itm.Month 'package_top'
-      FROM CustomerServices cs
-      LEFT JOIN InvoiceTypeMonth itm ON itm.InvoiceType = cs.InvoiceType 
-      WHERE cs.CustId = '${cid}'
-    `);
+          SELECT 
+          cs.ServiceId 'package_code',
+          cs.Subscription 'package_price',
+          itm.Month 'package_top'
+          FROM CustomerServices cs
+          LEFT JOIN InvoiceTypeMonth itm ON itm.InvoiceType = cs.InvoiceType 
+          WHERE cs.CustId = '${cid}'
+        `);
         resultObject['list_of_services'] = queryBuilderTwo;
       } catch (error) {
-        throw new Error(`${error}`);
+        resultObject['list_of_services'] = null;
       }
 
       // Step 3 : Ambil SMS Phonebook
+      resultObject['billing_phone'] = null;
+      resultObject['technical_phone'] = null;
       try {
         const queryBuilderThree = await this.dataSource.query(
           `SELECT sp.phone FROM sms_phonebook sp WHERE sp.custId = '${cid}' AND sp.name LIKE '%${resultObject['billing_name']}%'`,
@@ -83,10 +85,12 @@ export class CustomerRepository extends Repository<Customer> {
             ? queryBuilderFour[0].phone
             : '';
       } catch (error) {
-        throw new Error(`${error}`);
+        resultObject['billing_phone'] = null;
+        resultObject['technical_phone'] = null;
       }
 
       // Step 4 : Ambil NPWP Number
+      resultObject['npwp_number'] = null;
       try {
         const queryBuilderFive = await this.dataSource.query(`
           SELECT nc.NPWP FROM NPWP_Customer nc
@@ -94,12 +98,10 @@ export class CustomerRepository extends Repository<Customer> {
         `);
         resultObject['npwp_number'] = queryBuilderFive[0].NPWP;
       } catch (error) {
-        throw new Error(`${error}`);
+        resultObject['npwp_number'] = null;
       }
     } else {
-      throw new Error(
-        'Data pelanggan tidak ditemukan. Silahkan periksa kembali Customer ID anda.',
-      );
+      resultObject = {};
     }
 
     return resultObject;
