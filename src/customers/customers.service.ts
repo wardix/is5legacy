@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { CustomerRepository } from './customers.repository';
 import { CreateNewCustomerDto } from './dto/create-customer.dto';
+import { CreateNewServiceCustomersDto } from './dto/create-service-customer.dto';
 
 @Injectable()
 export class CustomersService {
@@ -16,9 +17,13 @@ export class CustomersService {
     );
   }
 
-  // async saveDataCustomerServLogic(createCustomerDto: CreateCustomerDto) {
-  //   return await this.customerRepository.saveCustomerServRepository(
-  //     createCustomerDto,
-  //   );
-  // }
+  async saveDataCustomerServLogic(
+    createNewServiceCustomersDto: CreateNewServiceCustomersDto,
+    customer_id,
+  ) {
+    return await this.customerRepository.saveCustomerServiceRepository(
+      createNewServiceCustomersDto,
+      customer_id,
+    );
+  }
 }
