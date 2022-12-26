@@ -15,6 +15,7 @@ import { AuthGuard } from '@nestjs/passport';
 import { CustomersService } from './customers.service';
 import { CreateNewCustomerDto } from './dto/create-customer.dto';
 import { DataSource } from 'typeorm';
+import { CreateNewServiceCustomersDto } from './dto/create-service-customer.dto';
 
 @UseGuards(AuthGuard('api-key'))
 @Controller('customers')
@@ -82,21 +83,27 @@ export class CustomersController {
     }
   }
 
-  // @Post(':id/services')
-  // @UsePipes(ValidationPipe)
-  // async saveDataCustServices(@Body() createCustomerDto: CreateCustomerDto) {
-  //   try {
-  //     const saveDataCustomerServices =
-  //       await this.customersService.saveDataCustomerServLogic(
-  //         createCustomerDto,
-  //       );
-  //     return saveDataCustomerServices;
-  //   } catch (error) {
-  //     throw new InternalServerErrorException({
-  //       title: 'Failed',
-  //       message:
-  //         'Proses simpan data layanan gagal, silahkan coba beberapa saat lagi.',
-  //     });
-  //   }
-  // }
+  @Post(':customer_id/services')
+  @HttpCode(201)
+  @UsePipes(ValidationPipe)
+  async saveDataCustServices(
+    @Param('customer_id') customer_id,
+    @Body() createNewServiceCustomersDto: CreateNewServiceCustomersDto,
+  ) {
+    try {
+      await this.customersService.saveDataCustomerServLogic(
+        createNewServiceCustomersDto,
+        customer_id,
+      );
+      return {
+        title: 'Success',
+        message: 'Success to save resource',
+      };
+    } catch (error) {
+      throw new ConflictException({
+        title: 'Conflict',
+        message: 'Failed to save resource. please try again later',
+      });
+    }
+  }
 }
