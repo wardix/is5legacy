@@ -19,7 +19,8 @@ export class SalesPromoController {
   @Get()
   @HttpCode(200)
   async getAllDataPromo(
-    @Query(ValidationPipe) filterPromoDto: GetPromoFilterDto,
+    @Query(new ValidationPipe({ transform: true }))
+    filterPromoDto: GetPromoFilterDto,
   ) {
     try {
       const resultAllPromo = await this.salesPromoService.getAllPromoService(
