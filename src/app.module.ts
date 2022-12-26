@@ -45,7 +45,7 @@ import { Services } from './services/entities/service.entity';
         SalesPromo,
         Services,
       ],
-      synchronize: true,
+      synchronize: false,
     }),
     AuthModule,
     IndexModule,
