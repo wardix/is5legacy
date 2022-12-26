@@ -1,11 +1,11 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Repository, DataSource } from 'typeorm';
-import { GetCustomerFilterDto } from './dto/get-customer-filter.dto';
 import { Customer } from './entities/customer.entity';
-import { CreateCustomerDto } from './dto/create-customer.dto';
+import { CreateNewCustomerDto } from './dto/create-customer.dto';
 import { Subscription } from './entities/subscriber.entity';
 import { NPWPCustomer } from './entities/customer-npwp.entity';
 import { SMSPhonebook } from './entities/sms-phonebook.entity';
+import { CreateNewServiceCustomersDto } from './dto/create-service-customer.dto';
 
 @Injectable()
 export class CustomerRepository extends Repository<Customer> {
@@ -107,21 +107,16 @@ export class CustomerRepository extends Repository<Customer> {
     return resultObject;
   }
 
-  async saveCustomerRepository(createCustomerDto: CreateCustomerDto) {
-    const queryRunner = this.dataSource.createQueryRunner();
+  async saveCustomerRepository(createCustomerDto: CreateNewCustomerDto) {
+    // Step 1 : Init CustID
+    let CustID = null;
+    CustID = await this.checkCustomerID();
 
-    if (createCustomerDto.action == 'RegNewCust') {
-      // Step 1 : Init CustID
-      const CustID = await this.checkCustomerID();
-      if (!CustID) {
-        throw new BadRequestException(
-          'Data pelanggan gagal ditambahkan. Customer ID Tidak Ditemukan, silahkan tambahkan customer ID di admin.',
-        );
-      }
+    // Step 2 : Init FormID
+    let FormID = null;
+    FormID = await this.checkFormID();
 
-      // Step 2 : Init FormID
-      const FormID = await this.checkFormID();
-
+    if (CustID && FormID) {
       // Step 3 : Assign Data Pelanggan ke Tabel Customer
       const pelanggan = new Customer();
       pelanggan.CustId = CustID;
@@ -233,43 +228,42 @@ export class CustomerRepository extends Repository<Customer> {
       smsPhoneBook2.insertTime = new Date(this.getDateNow());
       smsPhoneBook2.insertBy = createCustomerDto.approval_emp_id;
 
-      await queryRunner.connect();
-      await queryRunner.startTransaction();
-      try {
-        await queryRunner.manager.save(pelanggan);
-        await queryRunner.manager.save(smsPhoneBook1);
-        if (smsPhoneBook1.phone != smsPhoneBook2.phone) {
-          await queryRunner.manager.save(smsPhoneBook2);
-        }
-        await queryRunner.manager.save(Services);
-        await queryRunner.manager.save(npwpCust);
-        await queryRunner.commitTransaction();
-      } catch (err) {
-        await queryRunner.rollbackTransaction();
-        throw new Error(`${err}`);
-      }
-
       return {
-        title: 'Success',
-        data: {
-          customer_id: CustID,
-        },
-        message: 'Berhasil menambahkan data pelanggan.',
+        data_pelanggan: pelanggan,
+        data_layanan: Services,
+        data_npwp: npwpCust,
+        data_phonebook_1: smsPhoneBook1,
+        data_phonebook_2: smsPhoneBook2,
       };
     } else {
-      throw new Error('Invalid Action');
+      return {
+        data_pelanggan: null,
+        data_layanan: null,
+        data_npwp: null,
+        data_phonebook_1: null,
+        data_phonebook_2: null,
+      };
     }
   }
 
-  async saveCustomerServRepository(createCustomerDto: CreateCustomerDto) {
-    const queryRunner = this.dataSource.createQueryRunner();
+  async saveCustomerServiceRepository(
+    createNewServiceCustomersDto: CreateNewServiceCustomersDto,
+    cid,
+  ) {
+    // Step 1 : Cek Data Pelanggan
+    let dataPelanggan = null;
+    dataPelanggan = await this.createQueryBuilder('c')
+      .where('c.CustId = :id', {
+        id: cid,
+      })
+      .getMany();
 
-    if (createCustomerDto.CustID) {
+    if (dataPelanggan.length > 0) {
       const Services = new Subscription();
-      Services.CustId = createCustomerDto.CustID;
-      Services.ServiceId = createCustomerDto.package_code;
-      Services.ServiceType = createCustomerDto.package_name;
-      Services.EmpId = createCustomerDto.approval_emp_id;
+      Services.CustId = cid;
+      Services.ServiceId = createNewServiceCustomersDto.package_code;
+      Services.ServiceType = createNewServiceCustomersDto.package_name;
+      Services.EmpId = createNewServiceCustomersDto.approval_emp_id;
       Services.PayId = '006';
       Services.CustStatus = 'BL';
       Services.CustRegDate = new Date(this.getDateNow());
@@ -285,11 +279,11 @@ export class CustomerRepository extends Repository<Customer> {
       Services.Gabung = false;
       Services.Tampil = true;
       Services.TglHarga = new Date(this.getDateNow());
-      Services.Subscription = createCustomerDto.package_price;
+      Services.Subscription = createNewServiceCustomersDto.package_price;
       const InvoiceType = await this.dataSource.query(`
-    SELECT itm.InvoiceType FROM InvoiceTypeMonth itm
-    WHERE itm.Month = '${createCustomerDto.package_top}'
-  `);
+        SELECT itm.InvoiceType FROM InvoiceTypeMonth itm
+        WHERE itm.Month = '${createNewServiceCustomersDto.package_top}'
+      `);
       Services.InvoiceType = InvoiceType[0].InvoiceType;
       Services.InvoicePeriod = `${
         new Date(this.getDateNow()).getMonth().toString() +
@@ -298,31 +292,25 @@ export class CustomerRepository extends Repository<Customer> {
       Services.InvoiceDate1 = true;
       Services.AddEmailCharge = false;
       Services.AccessLog = true;
-      Services.Description = createCustomerDto.extend_note;
-      Services.installation_address = createCustomerDto.address;
+      Services.Description = createNewServiceCustomersDto.extend_note;
+      Services.installation_address =
+        createNewServiceCustomersDto.installation_address;
       Services.ContractUntil = new Date(this.getDateNow());
       Services.Type = 'Rumah';
-      Services.promo_id = createCustomerDto.promo_id;
+      Services.promo_id = createNewServiceCustomersDto.promo_id;
       Services.BlockTypeId = true;
       Services.BlockTypeDate = '25';
       Services.CustBlockFromMenu = 'edit_subs';
 
-      await queryRunner.connect();
-      await queryRunner.startTransaction();
-      try {
-        await queryRunner.manager.save(Services);
-        await queryRunner.commitTransaction();
-      } catch (err) {
-        await queryRunner.rollbackTransaction();
-        throw new Error(`${err}`);
-      }
+      await this.save(Services);
 
       return {
-        title: 'Success',
-        message: 'Berhasil menambahkan data layanan.',
+        data_layanan: Services,
       };
     } else {
-      throw new Error('Cust ID tidak ditemukan');
+      return {
+        data_layanan: null,
+      };
     }
   }
 
