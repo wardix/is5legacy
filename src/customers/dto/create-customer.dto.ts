@@ -1,6 +1,6 @@
 import { IsBoolean, IsNotEmpty, IsString, IsOptional } from 'class-validator';
 
-export class CreateCustomerDto {
+export class CreateNewCustomerDto {
   @IsNotEmpty()
   @IsString()
   branch_id: string;
@@ -128,12 +128,4 @@ export class CreateCustomerDto {
   @IsNotEmpty()
   @IsBoolean()
   cetak_duluan: boolean;
-
-  @IsNotEmpty()
-  @IsString()
-  action: string;
-
-  @IsOptional()
-  @IsString()
-  CustID: string;
 }

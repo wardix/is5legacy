@@ -1,8 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import { Repository, DataSource } from 'typeorm';
-import { GetCustomerFilterDto } from './dto/get-customer-filter.dto';
 import { Customer } from './entities/customer.entity';
-import { CreateCustomerDto } from './dto/create-customer.dto';
+import { CreateNewCustomerDto } from './dto/create-customer.dto';
 import { Subscription } from './entities/subscriber.entity';
 import { NPWPCustomer } from './entities/customer-npwp.entity';
 import { SMSPhonebook } from './entities/sms-phonebook.entity';
@@ -107,21 +106,16 @@ export class CustomerRepository extends Repository<Customer> {
     return resultObject;
   }
 
-  async saveCustomerRepository(createCustomerDto: CreateCustomerDto) {
-    const queryRunner = this.dataSource.createQueryRunner();
+  async saveCustomerRepository(createCustomerDto: CreateNewCustomerDto) {
+    // Step 1 : Init CustID
+    let CustID = null;
+    CustID = await this.checkCustomerID();
 
-    if (createCustomerDto.action == 'RegNewCust') {
-      // Step 1 : Init CustID
-      const CustID = await this.checkCustomerID();
-      if (!CustID) {
-        throw new BadRequestException(
-          'Data pelanggan gagal ditambahkan. Customer ID Tidak Ditemukan, silahkan tambahkan customer ID di admin.',
-        );
-      }
+    // Step 2 : Init FormID
+    let FormID = null;
+    FormID = await this.checkFormID();
 
-      // Step 2 : Init FormID
-      const FormID = await this.checkFormID();
-
+    if (CustID && FormID) {
       // Step 3 : Assign Data Pelanggan ke Tabel Customer
       const pelanggan = new Customer();
       pelanggan.CustId = CustID;
@@ -233,98 +227,83 @@ export class CustomerRepository extends Repository<Customer> {
       smsPhoneBook2.insertTime = new Date(this.getDateNow());
       smsPhoneBook2.insertBy = createCustomerDto.approval_emp_id;
 
-      await queryRunner.connect();
-      await queryRunner.startTransaction();
-      try {
-        await queryRunner.manager.save(pelanggan);
-        await queryRunner.manager.save(smsPhoneBook1);
-        if (smsPhoneBook1.phone != smsPhoneBook2.phone) {
-          await queryRunner.manager.save(smsPhoneBook2);
-        }
-        await queryRunner.manager.save(Services);
-        await queryRunner.manager.save(npwpCust);
-        await queryRunner.commitTransaction();
-      } catch (err) {
-        await queryRunner.rollbackTransaction();
-        throw new Error(`${err}`);
-      }
-
       return {
-        title: 'Success',
-        data: {
-          customer_id: CustID,
-        },
-        message: 'Berhasil menambahkan data pelanggan.',
+        data_pelanggan: pelanggan,
+        data_layanan: Services,
+        data_npwp: npwpCust,
+        data_phonebook_1: smsPhoneBook1,
+        data_phonebook_2: smsPhoneBook2,
       };
     } else {
-      throw new Error('Invalid Action');
+      return {
+        data_pelanggan: null,
+        data_layanan: null,
+        data_npwp: null,
+        data_phonebook_1: null,
+        data_phonebook_2: null,
+      };
     }
   }
 
-  async saveCustomerServRepository(createCustomerDto: CreateCustomerDto) {
-    const queryRunner = this.dataSource.createQueryRunner();
+  // async saveCustomerServRepository(createCustomerDto: CreateNewCustomerDto) {
+  //   const queryRunner = this.dataSource.createQueryRunner();
 
-    if (createCustomerDto.CustID) {
-      const Services = new Subscription();
-      Services.CustId = createCustomerDto.CustID;
-      Services.ServiceId = createCustomerDto.package_code;
-      Services.ServiceType = createCustomerDto.package_name;
-      Services.EmpId = createCustomerDto.approval_emp_id;
-      Services.PayId = '006';
-      Services.CustStatus = 'BL';
-      Services.CustRegDate = new Date(this.getDateNow());
-      Services.CustActivationDate = new Date(this.getDateNow());
-      Services.CustUpdateDate = new Date(this.getDateNow());
-      Services.CustBlockDate = new Date(this.getDateNow());
-      Services.CustBlockFrom = true;
-      Services.CustAccName = '';
-      Services.Opsi = true;
-      Services.StartTrial = new Date(this.getDateNow());
-      Services.EndTrial = new Date(this.getDateNow());
-      Services.StatusPerangkat = 'PM';
-      Services.Gabung = false;
-      Services.Tampil = true;
-      Services.TglHarga = new Date(this.getDateNow());
-      Services.Subscription = createCustomerDto.package_price;
-      const InvoiceType = await this.dataSource.query(`
-    SELECT itm.InvoiceType FROM InvoiceTypeMonth itm
-    WHERE itm.Month = '${createCustomerDto.package_top}'
-  `);
-      Services.InvoiceType = InvoiceType[0].InvoiceType;
-      Services.InvoicePeriod = `${
-        new Date(this.getDateNow()).getMonth().toString() +
-        new Date(this.getDateNow()).getFullYear().toString().slice(-2)
-      }`;
-      Services.InvoiceDate1 = true;
-      Services.AddEmailCharge = false;
-      Services.AccessLog = true;
-      Services.Description = createCustomerDto.extend_note;
-      Services.installation_address = createCustomerDto.address;
-      Services.ContractUntil = new Date(this.getDateNow());
-      Services.Type = 'Rumah';
-      Services.promo_id = createCustomerDto.promo_id;
-      Services.BlockTypeId = true;
-      Services.BlockTypeDate = '25';
-      Services.CustBlockFromMenu = 'edit_subs';
+  //   const Services = new Subscription();
+  //   Services.ServiceId = createCustomerDto.package_code;
+  //   Services.ServiceType = createCustomerDto.package_name;
+  //   Services.EmpId = createCustomerDto.approval_emp_id;
+  //   Services.PayId = '006';
+  //   Services.CustStatus = 'BL';
+  //   Services.CustRegDate = new Date(this.getDateNow());
+  //   Services.CustActivationDate = new Date(this.getDateNow());
+  //   Services.CustUpdateDate = new Date(this.getDateNow());
+  //   Services.CustBlockDate = new Date(this.getDateNow());
+  //   Services.CustBlockFrom = true;
+  //   Services.CustAccName = '';
+  //   Services.Opsi = true;
+  //   Services.StartTrial = new Date(this.getDateNow());
+  //   Services.EndTrial = new Date(this.getDateNow());
+  //   Services.StatusPerangkat = 'PM';
+  //   Services.Gabung = false;
+  //   Services.Tampil = true;
+  //   Services.TglHarga = new Date(this.getDateNow());
+  //   Services.Subscription = createCustomerDto.package_price;
+  //   const InvoiceType = await this.dataSource.query(`
+  //   SELECT itm.InvoiceType FROM InvoiceTypeMonth itm
+  //   WHERE itm.Month = '${createCustomerDto.package_top}'
+  // `);
+  //   Services.InvoiceType = InvoiceType[0].InvoiceType;
+  //   Services.InvoicePeriod = `${
+  //     new Date(this.getDateNow()).getMonth().toString() +
+  //     new Date(this.getDateNow()).getFullYear().toString().slice(-2)
+  //   }`;
+  //   Services.InvoiceDate1 = true;
+  //   Services.AddEmailCharge = false;
+  //   Services.AccessLog = true;
+  //   Services.Description = createCustomerDto.extend_note;
+  //   Services.installation_address = createCustomerDto.address;
+  //   Services.ContractUntil = new Date(this.getDateNow());
+  //   Services.Type = 'Rumah';
+  //   Services.promo_id = createCustomerDto.promo_id;
+  //   Services.BlockTypeId = true;
+  //   Services.BlockTypeDate = '25';
+  //   Services.CustBlockFromMenu = 'edit_subs';
 
-      await queryRunner.connect();
-      await queryRunner.startTransaction();
-      try {
-        await queryRunner.manager.save(Services);
-        await queryRunner.commitTransaction();
-      } catch (err) {
-        await queryRunner.rollbackTransaction();
-        throw new Error(`${err}`);
-      }
+  //   await queryRunner.connect();
+  //   await queryRunner.startTransaction();
+  //   try {
+  //     await queryRunner.manager.save(Services);
+  //     await queryRunner.commitTransaction();
+  //   } catch (err) {
+  //     await queryRunner.rollbackTransaction();
+  //     throw new Error(`${err}`);
+  //   }
 
-      return {
-        title: 'Success',
-        message: 'Berhasil menambahkan data layanan.',
-      };
-    } else {
-      throw new Error('Cust ID tidak ditemukan');
-    }
-  }
+  //   return {
+  //     title: 'Success',
+  //     message: 'Berhasil menambahkan data layanan.',
+  //   };
+  // }
 
   async checkCustomerID() {
     let CustIDResult = '';
