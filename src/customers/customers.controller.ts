@@ -6,6 +6,7 @@ import {
   InternalServerErrorException,
   Post,
   UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
@@ -14,6 +15,8 @@ import { CustomersService } from './customers.service';
 import { Query } from '@nestjs/common';
 import { GetCustomerFilterDto } from './dto/get-customer-filter.dto';
 import { CreateCustomerDto } from './dto/create-customer.dto';
+import { OperatorSubscriptionInterceptor } from './interceptors/operator-subscription.interceptor';
+import { GetOperatorSubscriptionDto } from './dto/get-operator-subscription.dto';
 
 @UseGuards(AuthGuard('api-key'))
 @Controller('customers')
@@ -70,5 +73,16 @@ export class CustomersController {
           'Proses simpan data layanan gagal, silahkan coba beberapa saat lagi.',
       });
     }
+  }
+
+  @Get('operator-subscriptions')
+  @UseInterceptors(OperatorSubscriptionInterceptor)
+  async getOperatorSubscription(
+    @Query(new ValidationPipe({ transform: true }))
+    getOperatorSubscriptionDto: GetOperatorSubscriptionDto,
+  ): Promise<any> {
+    return this.customersService.getOperatorSubscriptions(
+      getOperatorSubscriptionDto,
+    );
   }
 }

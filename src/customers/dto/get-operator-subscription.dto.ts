@@ -1,7 +1,7 @@
 import { Expose, Transform, Type } from 'class-transformer';
 import { IsArray, IsNotEmpty, IsString } from 'class-validator';
 
-export class GetFoLinkDto {
+export class GetOperatorSubscriptionDto {
   @IsNotEmpty()
   @Type(() => String)
   @IsArray()

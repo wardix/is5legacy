@@ -1,8 +1,8 @@
 import { Repository } from 'typeorm';
 import { CustomerServiceTechnicalCustom } from '../entities/customer-service-technical-custom.entity';
 
-export class SubscriptionRepository extends Repository<CustomerServiceTechnicalCustom> {
-  static getFoLinks(NocFiberId: number[], status: string[]) {
+export class OperatorSubscriptionRepository extends Repository<CustomerServiceTechnicalCustom> {
+  getOperatorSubscription(NocFiberId: number[], status: string[]) {
     return CustomerServiceTechnicalCustom.createQueryBuilder('a')
       .select([
         'c.custServId id',

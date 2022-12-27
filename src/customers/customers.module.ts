@@ -1,24 +1,18 @@
 import { Module } from '@nestjs/common';
 import { CustomersService } from './customers.service';
 import { CustomersController } from './customers.controller';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { CustomerRepository } from './customers.repository';
-import { Customer } from './entities/customer.entity';
-import { SMSPhonebook } from './entities/sms-phonebook.entity';
-import { Subscription } from './entities/subscriber.entity';
-import { NPWPCustomer } from './entities/customer-npwp.entity';
+import { CustomerRepository } from './repositories/customers.repository';
+import { NOCFiberRepository } from './repositories/noc-fiber.repository';
+import { OperatorSubscriptionRepository } from './repositories/operator-subscription.repository';
 
 @Module({
-  imports: [
-    TypeOrmModule.forFeature([
-      Customer,
-      Subscription,
-      SMSPhonebook,
-      NPWPCustomer,
-    ]),
-  ],
   controllers: [CustomersController],
   exports: [CustomersService],
-  providers: [CustomersService, CustomerRepository],
+  providers: [
+    CustomersService,
+    CustomerRepository,
+    OperatorSubscriptionRepository,
+    NOCFiberRepository,
+  ],
 })
 export class CustomersModule {}
