@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { GetServiceFilterDto } from './dto/get-service-filter.dto';
 import { Services } from './entities/service.entity';
 
@@ -10,51 +10,54 @@ export class ServicesService {
     const { branch_ids } = filterServiceDto;
 
     if (branch_ids) {
-      return Services.createQueryBuilder('s')
+      return await Services.createQueryBuilder('s')
         .select([
-          's.ServiceId',
-          's.ServiceType',
-          's.ServiceLevel',
-          'ss.NormalDownCeil',
-          'ss.NormalDownRate',
-          'ss.NormalUpCeil',
-          'ss.NormalUpRate',
-          '(s.MaxDownTime / 3600) DownTime',
-          's.ServiceCharge',
+          's.ServiceId service_id',
+          's.ServiceType service_type',
+          's.ServiceLevel service_level',
+          'ss.NormalDownCeil normal_down_ceil',
+          'ss.NormalDownRate normal_down_rate',
+          'ss.NormalUpCeil normal_up_ceil',
+          'ss.NormalUpRate normal_up_rate',
+          '(s.MaxDownTime / 3600) down_time',
+          's.ServiceCharge service_charge',
           'IFNULL(sd.discontinue, 0) discontinue',
         ])
-        .leftJoin('ServiceShaping', 'ss', 's.ServiceId = ss.ServiceId')
-        .leftJoin('ServiceDiscontinue', 'sd', 's.ServiceId = sd.ServiceId')
+        .leftJoin(
+          'ServiceDiscontinue',
+          'sd',
+          's.ServiceId = sd.ServiceId AND sd.BranchId IN (:...branchIds)',
+          { branchIds: branch_ids },
+        )
         .leftJoin('ServiceGroup', 'sg', 's.ServiceGroup = sg.ServiceGroup')
         .leftJoin('ServiceGroupType', 'sgt', 'sg.ServiceGroupTypeId = sgt.id')
-        .where('sg.ServiceGroupTypeId = 1')
-        .andWhere("s.ServiceGroup != 'WR'")
-        .andWhere('sd.BranchId IN (:...branchIds)', { branchIds: branch_ids })
-        .andWhere('discontinue != 1')
+        .leftJoin('ServiceShaping', 'ss', 's.ServiceId = ss.ServiceId')
+        .where(
+          "(sd.discontinue IS NULL or sd.discontinue = 0) AND sg.ServiceGroupTypeId = 1 AND s.ServiceGroup != 'WR'",
+        )
         .orderBy('s.ServiceType')
         .getRawMany();
     } else {
-      return Services.createQueryBuilder('s')
+      return await Services.createQueryBuilder('s')
         .select([
-          's.ServiceId',
-          's.ServiceType',
-          's.ServiceLevel',
-          'ss.NormalDownCeil',
-          'ss.NormalDownRate',
-          'ss.NormalUpCeil',
-          'ss.NormalUpRate',
-          '(s.MaxDownTime / 3600) DownTime',
-          's.ServiceCharge',
+          's.ServiceId service_id',
+          's.ServiceType service_type',
+          's.ServiceLevel service_level',
+          'ss.NormalDownCeil normal_down_ceil',
+          'ss.NormalDownRate normal_down_rate',
+          'ss.NormalUpCeil normal_up_ceil',
+          'ss.NormalUpRate normal_up_rate',
+          '(s.MaxDownTime / 3600) down_time',
+          's.ServiceCharge service_charge',
           'IFNULL(sd.discontinue, 0) discontinue',
         ])
-        .leftJoin('ServiceShaping', 'ss', 's.ServiceId = ss.ServiceId')
         .leftJoin('ServiceDiscontinue', 'sd', 's.ServiceId = sd.ServiceId')
         .leftJoin('ServiceGroup', 'sg', 's.ServiceGroup = sg.ServiceGroup')
         .leftJoin('ServiceGroupType', 'sgt', 'sg.ServiceGroupTypeId = sgt.id')
-        .where('sg.ServiceGroupTypeId = 1')
-        .andWhere("s.ServiceGroup != 'WR'")
-        .andWhere('sd.BranchId IS NOT NULL')
-        .andWhere('discontinue != 1')
+        .leftJoin('ServiceShaping', 'ss', 's.ServiceId = ss.ServiceId')
+        .where(
+          "(sd.discontinue IS NULL or sd.discontinue = 0) AND sg.ServiceGroupTypeId = 1 AND s.ServiceGroup != 'WR'",
+        )
         .orderBy('s.ServiceType')
         .getRawMany();
     }
