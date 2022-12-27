@@ -2,6 +2,7 @@ import {
   Controller,
   Get,
   HttpCode,
+  InternalServerErrorException,
   Query,
   UseGuards,
   ValidationPipe,
@@ -11,7 +12,7 @@ import { GetServiceFilterDto } from './dto/get-service-filter.dto';
 import { ServicesService } from './services.service';
 
 @UseGuards(AuthGuard('api-key'))
-@Controller('service')
+@Controller('services')
 export class ServicesController {
   constructor(private servicesService: ServicesService) {}
 
@@ -24,11 +25,14 @@ export class ServicesController {
     try {
       const resultAllServices =
         await this.servicesService.getAllServicesService(filterServiceDto);
-      return resultAllServices;
-    } catch (error) {
       return {
-        message: error.message,
+        data: resultAllServices,
       };
+    } catch (error) {
+      throw new InternalServerErrorException({
+        title: 'Internal Server Error',
+        message: 'Failed to load resource. please try again later',
+      });
     }
   }
 }
