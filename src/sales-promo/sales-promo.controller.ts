@@ -3,6 +3,7 @@ import {
   Get,
   HttpCode,
   InternalServerErrorException,
+  Param,
   Query,
   UseGuards,
   ValidationPipe,
@@ -28,6 +29,24 @@ export class SalesPromoController {
       );
       return {
         data: resultAllPromo,
+      };
+    } catch (error) {
+      throw new InternalServerErrorException({
+        title: 'Internal Server Error',
+        message: 'Failed to load resource. please try again later',
+      });
+    }
+  }
+
+  @Get(':promo_id')
+  @HttpCode(200)
+  async getDataPromoByID(@Param('promo_id') promo_id) {
+    try {
+      const resultPromoByID = await this.salesPromoService.getPromoByIDService(
+        promo_id,
+      );
+      return {
+        data: resultPromoByID,
       };
     } catch (error) {
       throw new InternalServerErrorException({

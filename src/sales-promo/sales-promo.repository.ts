@@ -33,4 +33,12 @@ export class SalesPromoRepository extends Repository<SalesPromo> {
 
     return promos;
   }
+
+  async getPromoByIDRepository(promo_id: string) {
+    return await this.findOne({
+      where: {
+        id: parseInt(promo_id),
+      },
+    });
+  }
 }
