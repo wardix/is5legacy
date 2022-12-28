@@ -3,6 +3,7 @@ import {
   Get,
   HttpCode,
   InternalServerErrorException,
+  Param,
   Query,
   UseGuards,
   ValidationPipe,
@@ -29,6 +30,24 @@ export class ServicesController {
         data: resultAllServices,
       };
     } catch (error) {
+      throw new InternalServerErrorException({
+        title: 'Internal Server Error',
+        message: 'Failed to load resource. please try again later',
+      });
+    }
+  }
+
+  @Get(':service_id')
+  @HttpCode(200)
+  async getServicesByID(@Param('service_id') service_id) {
+    try {
+      const resultServicesByID =
+        await this.servicesService.getServicesByIDService(service_id);
+      return {
+        data: resultServicesByID,
+      };
+    } catch (error) {
+      console.log(error);
       throw new InternalServerErrorException({
         title: 'Internal Server Error',
         message: 'Failed to load resource. please try again later',
