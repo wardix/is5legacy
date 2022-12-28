@@ -1,11 +1,13 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
 import { Repository, DataSource } from 'typeorm';
-import { Customer } from './entities/customer.entity';
-import { CreateNewCustomerDto } from './dto/create-customer.dto';
-import { Subscription } from './entities/subscriber.entity';
-import { NPWPCustomer } from './entities/customer-npwp.entity';
-import { SMSPhonebook } from './entities/sms-phonebook.entity';
-import { CreateNewServiceCustomersDto } from './dto/create-service-customer.dto';
+import { Customer } from '../entities/customer.entity';
+import { Subscription } from '../entities/subscriber.entity';
+import { NPWPCustomer } from '../entities/customer-npwp.entity';
+import { SMSPhonebook } from '../entities/sms-phonebook.entity';
+import { CustomerServiceTechnicalCustom } from '../entities/customer-service-technical-custom.entity';
+import { NOCFiber } from '../entities/noc-fiber.entity';
+import { CreateNewCustomerDto } from '../dto/create-customer.dto';
+import { CreateNewServiceCustomersDto } from '../dto/create-service-customer.dto';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class CustomerRepository extends Repository<Customer> {
@@ -382,5 +384,36 @@ export class CustomerRepository extends Repository<Customer> {
     });
 
     return tanggal.reverse().join('-') + ' ' + jam.join(':');
+  }
+
+  getNocFiberId(branchIds: string[], vendorIds: number[]) {
+    return NOCFiber.createQueryBuilder('f')
+      .select(['f.id'])
+      .where('f.branchId IN (:...branchIds)', { branchIds: branchIds })
+      .andWhere('f.vendorId IN (:...vendorIds)', { vendorIds: vendorIds })
+      .getMany();
+  }
+
+  getOperatorSubscriptions(NocFiberId: number[], status: string[]) {
+    return CustomerServiceTechnicalCustom.createQueryBuilder('a')
+      .select([
+        'c.custServId id',
+        'c.CustAccName acc',
+        'a.value CID',
+        'c.CustStatus status',
+        'd.Month periode',
+        'c.Subscription charge',
+        'c.Discount discount',
+        'c.CustActivationDate activationDate',
+        'c.CustUnregDate unregDate',
+        'c.CustBlockDate blockDate',
+      ])
+      .leftJoin('CustomerServiceTechnicalLink', 'b', 'b.id = a.technicalTypeId')
+      .leftJoin('CustomerServices', 'c', 'c.custServId = b.custServId')
+      .leftJoin('InvoiceTypeMonth', 'd', 'c.InvoiceType = d.InvoiceType')
+      .where('a.attribute = :attribute', { attribute: 'Vendor CID' })
+      .andWhere('c.CustStatus IN (:...custStatus)', { custStatus: status })
+      .andWhere('b.foVendorId IN (:...foVendorId)', { foVendorId: NocFiberId })
+      .getRawMany();
   }
 }
