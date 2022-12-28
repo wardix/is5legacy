@@ -8,11 +8,15 @@ import {
   Param,
   Post,
   UseGuards,
+  UseInterceptors,
   UsePipes,
   ValidationPipe,
 } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { CustomersService } from './customers.service';
+import { Query } from '@nestjs/common';
+import { OperatorSubscriptionInterceptor } from './interceptors/operator-subscription.interceptor';
+import { GetOperatorSubscriptionDto } from './dto/get-operator-subscription.dto';
 import { CreateNewCustomerDto } from './dto/create-customer.dto';
 import { DataSource } from 'typeorm';
 import { CreateNewServiceCustomersDto } from './dto/create-service-customer.dto';
@@ -27,10 +31,10 @@ export class CustomersController {
 
   @Get(':customer_id')
   @HttpCode(200)
-  async getCustomerDetail(@Param('customer_id') customer_id) {
+  async getCustomerDetail(@Param('customer_id') customerId) {
     try {
       const resultAllCustomers =
-        await this.customersService.getCustomerServices(customer_id);
+        await this.customersService.getCustomerServices(customerId);
       return {
         data: resultAllCustomers,
       };
@@ -115,5 +119,16 @@ export class CustomersController {
         message: 'Failed to save resource. please try again later',
       });
     }
+  }
+
+  @Get('operator-subscriptions')
+  @UseInterceptors(OperatorSubscriptionInterceptor)
+  async getOperatorSubscription(
+    @Query(new ValidationPipe({ transform: true }))
+    getOperatorSubscriptionDto: GetOperatorSubscriptionDto,
+  ): Promise<any> {
+    return this.customersService.getOperatorSubscriptions(
+      getOperatorSubscriptionDto,
+    );
   }
 }
