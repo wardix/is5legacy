@@ -1,27 +1,51 @@
 import { Injectable } from '@nestjs/common';
-import { CustomerRepository } from './customers.repository';
-import { GetCustomerFilterDto } from './dto/get-customer-filter.dto';
-import { CreateCustomerDto } from './dto/create-customer.dto';
+import { CustomerRepository } from './repositories/customers.repository';
+import { GetOperatorSubscriptionDto } from './dto/get-operator-subscription.dto';
+import { NOCFiberRepository } from 'src/customers/repositories/noc-fiber.repository';
+import { OperatorSubscriptionRepository } from './repositories/operator-subscription.repository';
+import { CreateNewCustomerDto } from './dto/create-customer.dto';
+import { CreateNewServiceCustomersDto } from './dto/create-service-customer.dto';
 
 @Injectable()
 export class CustomersService {
-  constructor(private customerRepository: CustomerRepository) {}
+  constructor(
+    private customerRepository: CustomerRepository,
+    private operatorSubscription: OperatorSubscriptionRepository,
+    private nocFiberRepository: NOCFiberRepository,
+  ) {}
 
-  async getCustomerServices(filterCustomerDto: GetCustomerFilterDto) {
-    return await this.customerRepository.getCustomerRepository(
-      filterCustomerDto,
-    );
+  async getCustomerServices(customerId) {
+    return await this.customerRepository.getCustomerRepository(customerId);
   }
 
-  async saveDataCustomerLogic(createCustomerDto: CreateCustomerDto) {
+  async saveNewCustomerServices(createNewCustomerDto: CreateNewCustomerDto) {
     return await this.customerRepository.saveCustomerRepository(
-      createCustomerDto,
+      createNewCustomerDto,
     );
   }
 
-  async saveDataCustomerServLogic(createCustomerDto: CreateCustomerDto) {
-    return await this.customerRepository.saveCustomerServRepository(
-      createCustomerDto,
+  async saveDataCustomerServLogic(
+    createNewServiceCustomersDto: CreateNewServiceCustomersDto,
+    customer_id,
+  ) {
+    return await this.customerRepository.saveCustomerServiceRepository(
+      createNewServiceCustomersDto,
+      customer_id,
+    );
+  }
+
+  async getOperatorSubscriptions(
+    getOperatorSubscriptionDto: GetOperatorSubscriptionDto,
+  ): Promise<any> {
+    const { branchIds, status, vendorIds } = getOperatorSubscriptionDto;
+    const NocFiberIds = await this.nocFiberRepository.getNocFiberId(
+      branchIds,
+      vendorIds,
+    );
+    const ArrayNocFiberIds = NocFiberIds.map((item) => item.id);
+    return this.operatorSubscription.getOperatorSubscription(
+      ArrayNocFiberIds,
+      status,
     );
   }
 }

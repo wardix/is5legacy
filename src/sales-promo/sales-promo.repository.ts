@@ -12,11 +12,13 @@ export class SalesPromoRepository extends Repository<SalesPromo> {
   async getAllPromoRepository(
     filterPromoDto: GetPromoFilterDto,
   ): Promise<SalesPromo[]> {
-    const { branchId, to, active } = filterPromoDto;
+    const { branch_ids, to, active } = filterPromoDto;
     const queryBuilder = this.createQueryBuilder('SalesPromo');
 
-    if (branchId) {
-      queryBuilder.andWhere('SalesPromo.branchId = :branchId', { branchId });
+    if (branch_ids) {
+      queryBuilder.andWhere('SalesPromo.branchId IN (:...branchIds)', {
+        branchIds: branch_ids,
+      });
     }
 
     if (to) {
@@ -30,5 +32,13 @@ export class SalesPromoRepository extends Repository<SalesPromo> {
     const promos = await queryBuilder.getMany();
 
     return promos;
+  }
+
+  async getPromoByIDRepository(promo_id: string) {
+    return await this.findOne({
+      where: {
+        id: parseInt(promo_id),
+      },
+    });
   }
 }

@@ -8,12 +8,11 @@ import { EmployeesModule } from './employees/employees.module';
 import { Employee } from './employees/employee.entity';
 import { Tts, TtsPIC, TtsChange, Ttschange } from './tickets/tickets.entity';
 import { TtsModule } from './tickets/tickets.module';
-import { NOCFiber } from './subscription/entities/noc-fiber.entity';
+import { NOCFiber } from './customers/entities/noc-fiber.entity';
 import { SalesPromoModule } from './sales-promo/sales-promo.module';
 import { SalesPromo } from './sales-promo/sales-promo.entity';
 import { ServicesModule } from './services/services.module';
-import { CustomerServiceTechnicalCustom } from './subscription/entities/customer-service-technical-custom.entity';
-import { SubscriptionModule } from './subscription/subscription.module';
+import { CustomerServiceTechnicalCustom } from './customers/entities/customer-service-technical-custom.entity';
 import { Customer } from './customers/entities/customer.entity';
 import { SMSPhonebook } from './customers/entities/sms-phonebook.entity';
 import { Subscription } from './customers/entities/subscriber.entity';
@@ -45,14 +44,13 @@ import { Services } from './services/entities/service.entity';
         SalesPromo,
         Services,
       ],
-      synchronize: true,
+      synchronize: false,
     }),
     AuthModule,
     IndexModule,
     CustomersModule,
     EmployeesModule,
     TtsModule,
-    SubscriptionModule,
     SalesPromoModule,
     ServicesModule,
   ],

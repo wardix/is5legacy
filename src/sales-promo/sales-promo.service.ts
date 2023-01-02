@@ -14,4 +14,8 @@ export class SalesPromoService {
       filterPromoDto,
     );
   }
+
+  async getPromoByIDService(promo_id: string) {
+    return await this.salesPromoRepository.getPromoByIDRepository(promo_id);
+  }
 }

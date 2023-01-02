@@ -1,11 +1,13 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
 import { Repository, DataSource } from 'typeorm';
-import { GetCustomerFilterDto } from './dto/get-customer-filter.dto';
-import { Customer } from './entities/customer.entity';
-import { CreateCustomerDto } from './dto/create-customer.dto';
-import { Subscription } from './entities/subscriber.entity';
-import { NPWPCustomer } from './entities/customer-npwp.entity';
-import { SMSPhonebook } from './entities/sms-phonebook.entity';
+import { Customer } from '../entities/customer.entity';
+import { Subscription } from '../entities/subscriber.entity';
+import { NPWPCustomer } from '../entities/customer-npwp.entity';
+import { SMSPhonebook } from '../entities/sms-phonebook.entity';
+import { CustomerServiceTechnicalCustom } from '../entities/customer-service-technical-custom.entity';
+import { NOCFiber } from '../entities/noc-fiber.entity';
+import { CreateNewCustomerDto } from '../dto/create-customer.dto';
+import { CreateNewServiceCustomersDto } from '../dto/create-service-customer.dto';
+import { Injectable } from '@nestjs/common';
 
 @Injectable()
 export class CustomerRepository extends Repository<Customer> {
@@ -13,8 +15,7 @@ export class CustomerRepository extends Repository<Customer> {
     super(Customer, dataSource.createEntityManager());
   }
 
-  async getCustomerRepository(filterCustomerDto: GetCustomerFilterDto) {
-    const { cid } = filterCustomerDto;
+  async getCustomerRepository(cid) {
     let resultObject = {};
 
     // Step 1 : Ambil Data Customer
@@ -46,27 +47,30 @@ export class CustomerRepository extends Repository<Customer> {
       const getDataCustomerByID = await queryBuilderOne.getRawMany();
       resultObject = getDataCustomerByID[0];
     } catch (error) {
-      throw new Error(`${error}`);
+      resultObject = null;
     }
 
-    if (resultObject !== undefined) {
+    if (resultObject != null) {
       // Step 2 : Ambil Data CustomerService dan InvoiceTypeMonth
+      resultObject['list_of_services'] = null;
       try {
         const queryBuilderTwo = await this.dataSource.query(`
-      SELECT 
-      cs.ServiceId 'package_code',
-      cs.Subscription 'package_price',
-      itm.Month 'package_top'
-      FROM CustomerServices cs
-      LEFT JOIN InvoiceTypeMonth itm ON itm.InvoiceType = cs.InvoiceType 
-      WHERE cs.CustId = '${cid}'
-    `);
+          SELECT 
+          cs.ServiceId 'package_code',
+          cs.Subscription 'package_price',
+          itm.Month 'package_top'
+          FROM CustomerServices cs
+          LEFT JOIN InvoiceTypeMonth itm ON itm.InvoiceType = cs.InvoiceType 
+          WHERE cs.CustId = '${cid}'
+        `);
         resultObject['list_of_services'] = queryBuilderTwo;
       } catch (error) {
-        throw new Error(`${error}`);
+        resultObject['list_of_services'] = null;
       }
 
       // Step 3 : Ambil SMS Phonebook
+      resultObject['billing_phone'] = null;
+      resultObject['technical_phone'] = null;
       try {
         const queryBuilderThree = await this.dataSource.query(
           `SELECT sp.phone FROM sms_phonebook sp WHERE sp.custId = '${cid}' AND sp.name LIKE '%${resultObject['billing_name']}%'`,
@@ -83,10 +87,12 @@ export class CustomerRepository extends Repository<Customer> {
             ? queryBuilderFour[0].phone
             : '';
       } catch (error) {
-        throw new Error(`${error}`);
+        resultObject['billing_phone'] = null;
+        resultObject['technical_phone'] = null;
       }
 
       // Step 4 : Ambil NPWP Number
+      resultObject['npwp_number'] = null;
       try {
         const queryBuilderFive = await this.dataSource.query(`
           SELECT nc.NPWP FROM NPWP_Customer nc
@@ -94,32 +100,25 @@ export class CustomerRepository extends Repository<Customer> {
         `);
         resultObject['npwp_number'] = queryBuilderFive[0].NPWP;
       } catch (error) {
-        throw new Error(`${error}`);
+        resultObject['npwp_number'] = null;
       }
     } else {
-      throw new Error(
-        'Data pelanggan tidak ditemukan. Silahkan periksa kembali Customer ID anda.',
-      );
+      resultObject = {};
     }
 
     return resultObject;
   }
 
-  async saveCustomerRepository(createCustomerDto: CreateCustomerDto) {
-    const queryRunner = this.dataSource.createQueryRunner();
+  async saveCustomerRepository(createCustomerDto: CreateNewCustomerDto) {
+    // Step 1 : Init CustID
+    let CustID = null;
+    CustID = await this.checkCustomerID();
 
-    if (createCustomerDto.action == 'RegNewCust') {
-      // Step 1 : Init CustID
-      const CustID = await this.checkCustomerID();
-      if (!CustID) {
-        throw new BadRequestException(
-          'Data pelanggan gagal ditambahkan. Customer ID Tidak Ditemukan, silahkan tambahkan customer ID di admin.',
-        );
-      }
+    // Step 2 : Init FormID
+    let FormID = null;
+    FormID = await this.checkFormID();
 
-      // Step 2 : Init FormID
-      const FormID = await this.checkFormID();
-
+    if (CustID && FormID) {
       // Step 3 : Assign Data Pelanggan ke Tabel Customer
       const pelanggan = new Customer();
       pelanggan.CustId = CustID;
@@ -231,43 +230,42 @@ export class CustomerRepository extends Repository<Customer> {
       smsPhoneBook2.insertTime = new Date(this.getDateNow());
       smsPhoneBook2.insertBy = createCustomerDto.approval_emp_id;
 
-      await queryRunner.connect();
-      await queryRunner.startTransaction();
-      try {
-        await queryRunner.manager.save(pelanggan);
-        await queryRunner.manager.save(smsPhoneBook1);
-        if (smsPhoneBook1.phone != smsPhoneBook2.phone) {
-          await queryRunner.manager.save(smsPhoneBook2);
-        }
-        await queryRunner.manager.save(Services);
-        await queryRunner.manager.save(npwpCust);
-        await queryRunner.commitTransaction();
-      } catch (err) {
-        await queryRunner.rollbackTransaction();
-        throw new Error(`${err}`);
-      }
-
       return {
-        title: 'Success',
-        data: {
-          customer_id: CustID,
-        },
-        message: 'Berhasil menambahkan data pelanggan.',
+        data_pelanggan: pelanggan,
+        data_layanan: Services,
+        data_npwp: npwpCust,
+        data_phonebook_1: smsPhoneBook1,
+        data_phonebook_2: smsPhoneBook2,
       };
     } else {
-      throw new Error('Invalid Action');
+      return {
+        data_pelanggan: null,
+        data_layanan: null,
+        data_npwp: null,
+        data_phonebook_1: null,
+        data_phonebook_2: null,
+      };
     }
   }
 
-  async saveCustomerServRepository(createCustomerDto: CreateCustomerDto) {
-    const queryRunner = this.dataSource.createQueryRunner();
+  async saveCustomerServiceRepository(
+    createNewServiceCustomersDto: CreateNewServiceCustomersDto,
+    cid,
+  ) {
+    // Step 1 : Cek Data Pelanggan
+    let dataPelanggan = [];
+    dataPelanggan = await this.createQueryBuilder('c')
+      .where('c.CustId = :id', {
+        id: cid,
+      })
+      .getMany();
 
-    if (createCustomerDto.CustID) {
+    if (dataPelanggan.length > 0) {
       const Services = new Subscription();
-      Services.CustId = createCustomerDto.CustID;
-      Services.ServiceId = createCustomerDto.package_code;
-      Services.ServiceType = createCustomerDto.package_name;
-      Services.EmpId = createCustomerDto.approval_emp_id;
+      Services.CustId = cid;
+      Services.ServiceId = createNewServiceCustomersDto.package_code;
+      Services.ServiceType = createNewServiceCustomersDto.package_name;
+      Services.EmpId = createNewServiceCustomersDto.approval_emp_id;
       Services.PayId = '006';
       Services.CustStatus = 'BL';
       Services.CustRegDate = new Date(this.getDateNow());
@@ -283,11 +281,11 @@ export class CustomerRepository extends Repository<Customer> {
       Services.Gabung = false;
       Services.Tampil = true;
       Services.TglHarga = new Date(this.getDateNow());
-      Services.Subscription = createCustomerDto.package_price;
+      Services.Subscription = createNewServiceCustomersDto.package_price;
       const InvoiceType = await this.dataSource.query(`
-    SELECT itm.InvoiceType FROM InvoiceTypeMonth itm
-    WHERE itm.Month = '${createCustomerDto.package_top}'
-  `);
+        SELECT itm.InvoiceType FROM InvoiceTypeMonth itm
+        WHERE itm.Month = '${createNewServiceCustomersDto.package_top}'
+      `);
       Services.InvoiceType = InvoiceType[0].InvoiceType;
       Services.InvoicePeriod = `${
         new Date(this.getDateNow()).getMonth().toString() +
@@ -296,31 +294,23 @@ export class CustomerRepository extends Repository<Customer> {
       Services.InvoiceDate1 = true;
       Services.AddEmailCharge = false;
       Services.AccessLog = true;
-      Services.Description = createCustomerDto.extend_note;
-      Services.installation_address = createCustomerDto.address;
+      Services.Description = createNewServiceCustomersDto.extend_note;
+      Services.installation_address =
+        createNewServiceCustomersDto.installation_address;
       Services.ContractUntil = new Date(this.getDateNow());
       Services.Type = 'Rumah';
-      Services.promo_id = createCustomerDto.promo_id;
+      Services.promo_id = createNewServiceCustomersDto.promo_id;
       Services.BlockTypeId = true;
       Services.BlockTypeDate = '25';
       Services.CustBlockFromMenu = 'edit_subs';
 
-      await queryRunner.connect();
-      await queryRunner.startTransaction();
-      try {
-        await queryRunner.manager.save(Services);
-        await queryRunner.commitTransaction();
-      } catch (err) {
-        await queryRunner.rollbackTransaction();
-        throw new Error(`${err}`);
-      }
-
       return {
-        title: 'Success',
-        message: 'Berhasil menambahkan data layanan.',
+        data_layanan: Services,
       };
     } else {
-      throw new Error('Cust ID tidak ditemukan');
+      return {
+        data_layanan: null,
+      };
     }
   }
 
@@ -394,5 +384,36 @@ export class CustomerRepository extends Repository<Customer> {
     });
 
     return tanggal.reverse().join('-') + ' ' + jam.join(':');
+  }
+
+  getNocFiberId(branchIds: string[], vendorIds: number[]) {
+    return NOCFiber.createQueryBuilder('f')
+      .select(['f.id'])
+      .where('f.branchId IN (:...branchIds)', { branchIds: branchIds })
+      .andWhere('f.vendorId IN (:...vendorIds)', { vendorIds: vendorIds })
+      .getMany();
+  }
+
+  getOperatorSubscriptions(NocFiberId: number[], status: string[]) {
+    return CustomerServiceTechnicalCustom.createQueryBuilder('a')
+      .select([
+        'c.custServId id',
+        'c.CustAccName acc',
+        'a.value CID',
+        'c.CustStatus status',
+        'd.Month periode',
+        'c.Subscription charge',
+        'c.Discount discount',
+        'c.CustActivationDate activationDate',
+        'c.CustUnregDate unregDate',
+        'c.CustBlockDate blockDate',
+      ])
+      .leftJoin('CustomerServiceTechnicalLink', 'b', 'b.id = a.technicalTypeId')
+      .leftJoin('CustomerServices', 'c', 'c.custServId = b.custServId')
+      .leftJoin('InvoiceTypeMonth', 'd', 'c.InvoiceType = d.InvoiceType')
+      .where('a.attribute = :attribute', { attribute: 'Vendor CID' })
+      .andWhere('c.CustStatus IN (:...custStatus)', { custStatus: status })
+      .andWhere('b.foVendorId IN (:...foVendorId)', { foVendorId: NocFiberId })
+      .getRawMany();
   }
 }
